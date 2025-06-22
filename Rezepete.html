@@ -1,0 +1,1692 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Proteinreiche, fettarme Rezepte</title>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #2ecc71;
+            --secondary-color: #3498db;
+            --danger-color: #e74c3c;
+            --warning-color: #f39c12;
+            --background-color: #f8f9fa;
+            --card-background: #ffffff;
+            --text-color: #2c3e50;
+            --text-secondary: #7f8c8d;
+            --border-color: #ecf0f1;
+            --shadow: 0 2px 8px rgba(0,0,0,0.1);
+            --transition: all 0.3s ease;
+        }
+
+        body.dark-mode {
+            --background-color: #1a1a1a;
+            --card-background: #2a2a2a;
+            --text-color: #ecf0f1;
+            --text-secondary: #bdc3c7;
+            --border-color: #34495e;
+            --shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            transition: var(--transition);
+        }
+
+        .app {
+            min-height: 100vh;
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 2rem 0;
+            text-align: center;
+            box-shadow: var(--shadow);
+            position: relative;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .header-controls {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .header-btn {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 50px;
+            color: white;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+
+        .header-btn:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateY(-2px);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+        }
+
+        .controls {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .control-btn {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .control-btn:hover {
+            background: #27ae60;
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+
+        .control-btn.secondary {
+            background: var(--secondary-color);
+        }
+
+        .control-btn.secondary:hover {
+            background: #2980b9;
+        }
+
+        .filter-bar {
+            background: var(--card-background);
+            padding: 1.5rem;
+            border-radius: 15px;
+            box-shadow: var(--shadow);
+            margin-bottom: 2rem;
+        }
+
+        .filter-bar h3 {
+            margin-bottom: 1rem;
+            color: var(--text-color);
+        }
+
+        .filter-section {
+            margin-bottom: 1rem;
+        }
+
+        .filter-section h4 {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+        }
+
+        .filter-options {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-chip {
+            background: var(--background-color);
+            border: 2px solid var(--border-color);
+            padding: 0.4rem 0.8rem;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 0.85rem;
+        }
+
+        .filter-chip:hover {
+            border-color: var(--primary-color);
+            transform: translateY(-2px);
+        }
+
+        .filter-chip.active {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        .filter-chip.excluded {
+            background: var(--danger-color);
+            color: white;
+            border-color: var(--danger-color);
+        }
+
+        .search-bar {
+            width: 100%;
+            padding: 0.75rem 1.5rem;
+            border: 2px solid var(--border-color);
+            border-radius: 50px;
+            font-size: 1rem;
+            margin-bottom: 1rem;
+            background: var(--card-background);
+            color: var(--text-color);
+            transition: var(--transition);
+        }
+
+        .search-bar:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .recipe-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .recipe-card {
+            background: var(--card-background);
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            position: relative;
+        }
+
+        .recipe-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+        }
+
+        .recipe-actions {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            display: flex;
+            gap: 0.5rem;
+            z-index: 10;
+        }
+
+        .action-btn {
+            background: rgba(255,255,255,0.9);
+            border: none;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+        }
+
+        .action-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .action-btn.favorite {
+            color: var(--danger-color);
+        }
+
+        .action-btn.favorite.active {
+            background: var(--danger-color);
+            color: white;
+        }
+
+        .recipe-header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 1.5rem;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .recipe-header h3 {
+            font-size: 1.3rem;
+            margin-bottom: 0.5rem;
+            padding-right: 100px;
+        }
+
+        .recipe-stats {
+            display: flex;
+            gap: 1rem;
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .recipe-body {
+            padding: 1.5rem;
+        }
+
+        .recipe-description {
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+            font-size: 0.95rem;
+        }
+
+        .ingredients-list {
+            list-style: none;
+            margin-bottom: 1rem;
+        }
+
+        .ingredients-list li {
+            padding: 0.3rem 0;
+            color: var(--text-color);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .ingredients-list li:before {
+            content: "•";
+            color: var(--primary-color);
+            font-weight: bold;
+        }
+
+        .recipe-instructions {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .recipe-instructions h4 {
+            color: var(--text-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .recipe-instructions ol {
+            padding-left: 1.5rem;
+            color: var(--text-secondary);
+        }
+
+        .recipe-instructions li {
+            margin-bottom: 0.5rem;
+            line-height: 1.6;
+        }
+
+        .recipe-tags {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-top: 1rem;
+        }
+
+        .recipe-tag {
+            background: var(--background-color);
+            padding: 0.3rem 0.8rem;
+            border-radius: 15px;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .portion-calculator {
+            background: var(--background-color);
+            padding: 1rem;
+            border-radius: 10px;
+            margin: 1rem 0;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .portion-input {
+            width: 60px;
+            padding: 0.5rem;
+            border: 2px solid var(--border-color);
+            border-radius: 5px;
+            text-align: center;
+            font-size: 1rem;
+        }
+
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 1rem;
+        }
+
+        .modal-content {
+            background: var(--card-background);
+            border-radius: 15px;
+            width: 100%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-body {
+            padding: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--text-color);
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 1rem;
+            background: var(--background-color);
+            color: var(--text-color);
+        }
+
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+            margin-top: 2rem;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #27ae60;
+        }
+
+        .btn-secondary {
+            background: var(--border-color);
+            color: var(--text-color);
+        }
+
+        .btn-secondary:hover {
+            background: #bdc3c7;
+        }
+
+        .stats-summary {
+            background: var(--card-background);
+            padding: 1.5rem;
+            border-radius: 15px;
+            box-shadow: var(--shadow);
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .stat-item {
+            padding: 1rem;
+            background: var(--background-color);
+            border-radius: 10px;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .shopping-list {
+            background: var(--card-background);
+            padding: 1.5rem;
+            border-radius: 15px;
+            box-shadow: var(--shadow);
+            margin-bottom: 2rem;
+        }
+
+        .shopping-list h3 {
+            margin-bottom: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .shopping-list-items {
+            list-style: none;
+        }
+
+        .shopping-list-items li {
+            padding: 0.5rem 0;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .meal-planner {
+            background: var(--card-background);
+            padding: 1.5rem;
+            border-radius: 15px;
+            box-shadow: var(--shadow);
+            margin-bottom: 2rem;
+        }
+
+        .week-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .day-card {
+            background: var(--background-color);
+            padding: 1rem;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .day-card h4 {
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .day-card .meal-slot {
+            margin: 0.5rem 0;
+            padding: 0.5rem;
+            background: var(--card-background);
+            border-radius: 5px;
+            font-size: 0.9rem;
+            min-height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border: 2px dashed var(--border-color);
+        }
+
+        .day-card .meal-slot.filled {
+            border-style: solid;
+            border-color: var(--primary-color);
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .recipe-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .filter-options {
+                flex-direction: column;
+            }
+            
+            .header-controls {
+                position: static;
+                margin-top: 1rem;
+                justify-content: center;
+            }
+            
+            .week-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-secondary);
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-secondary);
+        }
+
+        .no-results i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: var(--border-color);
+        }
+
+        .notification {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: var(--primary-color);
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+            animation: slideIn 0.3s ease;
+            z-index: 1001;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @media print {
+            .header-controls,
+            .controls,
+            .filter-bar,
+            .stats-summary,
+            .shopping-list,
+            .meal-planner,
+            .recipe-actions {
+                display: none !important;
+            }
+            
+            .recipe-card {
+                page-break-inside: avoid;
+                box-shadow: none;
+                border: 1px solid #ddd;
+                margin-bottom: 2rem;
+            }
+            
+            body {
+                background: white;
+                color: black;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useMemo, useCallback } = React;
+
+        // Rezepte-Daten (gleich wie vorher, nur gekürzt für Übersichtlichkeit)
+        const recipesData = [
+            {
+                id: 1,
+                title: "Hähnchenbrust mit Brokkoli und Quinoa",
+                protein: 145,
+                fat: 8,
+                calories: 520,
+                description: "Ein klassisches Fitness-Gericht mit perfekter Makronährstoff-Verteilung",
+                ingredients: [
+                    "300g Hähnchenbrust",
+                    "200g Brokkoli",
+                    "100g Quinoa (ungekocht)",
+                    "1 TL Olivenöl",
+                    "Knoblauch, Salz, Pfeffer"
+                ],
+                instructions: [
+                    "Quinoa nach Packungsanleitung kochen (ca. 15 Minuten)",
+                    "Hähnchenbrust in Würfel schneiden und mit Salz und Pfeffer würzen",
+                    "Brokkoli in kleine Röschen teilen",
+                    "In einer Pfanne das Olivenöl erhitzen und Knoblauch anbraten",
+                    "Hähnchen hinzufügen und 6-8 Minuten braten, bis es durchgegart ist",
+                    "Brokkoli dazugeben und weitere 5 Minuten garen",
+                    "Mit gekochtem Quinoa servieren"
+                ],
+                tags: ["Hähnchen", "Quinoa", "Glutenfrei"],
+                prepTime: 25,
+                difficulty: "Einfach"
+            },
+            {
+                id: 2,
+                title: "Thunfisch-Eiweiß-Wrap",
+                protein: 128,
+                fat: 7,
+                calories: 480,
+                description: "Schneller High-Protein Wrap für unterwegs",
+                ingredients: [
+                    "2 Dosen Thunfisch in Wasser (280g)",
+                    "4 Eiweiß",
+                    "2 Vollkorn-Tortillas",
+                    "100g fettarmer Hüttenkäse",
+                    "Salat, Tomaten, Gurken"
+                ],
+                instructions: [
+                    "Thunfisch abtropfen lassen und in eine Schüssel geben",
+                    "Eiweiß hart kochen (10 Minuten), abkühlen und klein hacken",
+                    "Thunfisch mit gehacktem Eiweiß und Hüttenkäse vermischen",
+                    "Gemüse waschen und in Streifen schneiden",
+                    "Tortillas erwärmen und mit der Thunfisch-Mischung bestreichen",
+                    "Gemüse darauf verteilen und fest einrollen",
+                    "In der Mitte durchschneiden und servieren"
+                ],
+                tags: ["Thunfisch", "Wraps", "Schnell"],
+                prepTime: 15,
+                difficulty: "Einfach"
+            },
+            {
+                id: 3,
+                title: "Magerquark-Protein-Bowl",
+                protein: 135,
+                fat: 6,
+                calories: 450,
+                description: "Cremige Protein-Bowl mit Beeren und Nüssen",
+                ingredients: [
+                    "500g Magerquark",
+                    "30g Whey Protein (Vanille)",
+                    "150g gemischte Beeren",
+                    "10g Mandeln (gehackt)",
+                    "1 TL Honig"
+                ],
+                instructions: [
+                    "Magerquark in eine große Schüssel geben",
+                    "Proteinpulver hinzufügen und gut verrühren",
+                    "Falls zu dick, etwas Wasser hinzufügen",
+                    "Beeren waschen und trocken tupfen",
+                    "Mandeln grob hacken",
+                    "Quark-Mischung in Schalen verteilen",
+                    "Mit Beeren toppen, Mandeln darüberstreuen und mit Honig beträufeln"
+                ],
+                tags: ["Vegetarisch", "Quark", "Süß"],
+                prepTime: 10,
+                difficulty: "Einfach"
+            },
+            {
+                id: 4,
+                title: "Putenbrust mit Süßkartoffel",
+                protein: 142,
+                fat: 9,
+                calories: 550,
+                description: "Saftiges Putengericht mit komplexen Kohlenhydraten",
+                ingredients: [
+                    "300g Putenbrust",
+                    "200g Süßkartoffel",
+                    "150g grüne Bohnen",
+                    "1 TL Kokosöl",
+                    "Rosmarin, Thymian, Salz"
+                ],
+                instructions: [
+                    "Ofen auf 200°C vorheizen",
+                    "Süßkartoffel schälen und in Würfel schneiden",
+                    "Putenbrust mit Kräutern und Salz einreiben",
+                    "Süßkartoffelwürfel mit etwas Kokosöl vermischen",
+                    "Alles auf ein Backblech geben und 25 Minuten backen",
+                    "Nach 15 Minuten die Bohnen hinzufügen",
+                    "Putenbrust in Scheiben schneiden und mit dem Gemüse servieren"
+                ],
+                tags: ["Pute", "Süßkartoffel", "Ofengericht"],
+                prepTime: 35,
+                difficulty: "Mittel"
+            },
+            {
+                id: 5,
+                title: "Lachs mit Spargel und Reis",
+                protein: 125,
+                fat: 10,
+                calories: 580,
+                description: "Omega-3 reiches Gericht mit grünem Spargel",
+                ingredients: [
+                    "250g Lachsfilet",
+                    "200g grüner Spargel",
+                    "100g Basmatireis",
+                    "1 TL Olivenöl",
+                    "Zitrone, Dill, Salz"
+                ],
+                instructions: [
+                    "Reis nach Packungsanleitung kochen",
+                    "Spargel waschen und holzige Enden entfernen",
+                    "Lachs mit Salz und Dill würzen",
+                    "In einer Pfanne Olivenöl erhitzen",
+                    "Lachs von beiden Seiten je 4 Minuten braten",
+                    "Spargel in derselben Pfanne 5-7 Minuten garen",
+                    "Mit Zitronensaft beträufeln und mit Reis servieren"
+                ],
+                tags: ["Fisch", "Spargel", "Omega-3"],
+                prepTime: 25,
+                difficulty: "Mittel"
+            }
+            
+
+        ];
+
+        // LocalStorage Helfer
+        const useLocalStorage = (key, initialValue) => {
+            const [storedValue, setStoredValue] = useState(() => {
+                try {
+                    const item = window.localStorage.getItem(key);
+                    return item ? JSON.parse(item) : initialValue;
+                } catch (error) {
+                    console.log(error);
+                    return initialValue;
+                }
+            });
+
+            const setValue = (value) => {
+                try {
+                    setStoredValue(value);
+                    window.localStorage.setItem(key, JSON.stringify(value));
+                } catch (error) {
+                    console.log(error);
+                }
+            };
+
+            return [storedValue, setValue];
+        };
+
+        // Notification Component
+        const Notification = ({ message, onClose }) => {
+            useEffect(() => {
+                const timer = setTimeout(onClose, 3000);
+                return () => clearTimeout(timer);
+            }, [onClose]);
+
+            return (
+                <div className="notification">
+                    <i className="fas fa-check-circle"></i> {message}
+                </div>
+            );
+        };
+
+        // Neues Rezept Modal
+        const NewRecipeModal = ({ isOpen, onClose, onSave }) => {
+            const [recipeData, setRecipeData] = useState({
+                title: '',
+                protein: '',
+                fat: '',
+                calories: '',
+                description: '',
+                ingredients: [''],
+                instructions: [''],
+                tags: [],
+                prepTime: '',
+                difficulty: 'Einfach'
+            });
+
+            const handleInputChange = (field, value) => {
+                setRecipeData(prev => ({ ...prev, [field]: value }));
+            };
+
+            const handleArrayChange = (field, index, value) => {
+                setRecipeData(prev => ({
+                    ...prev,
+                    [field]: prev[field].map((item, i) => i === index ? value : item)
+                }));
+            };
+
+            const addArrayItem = (field) => {
+                setRecipeData(prev => ({
+                    ...prev,
+                    [field]: [...prev[field], '']
+                }));
+            };
+
+            const removeArrayItem = (field, index) => {
+                setRecipeData(prev => ({
+                    ...prev,
+                    [field]: prev[field].filter((_, i) => i !== index)
+                }));
+            };
+
+            const handleSubmit = (e) => {
+                e.preventDefault();
+                const newRecipe = {
+                    ...recipeData,
+                    id: Date.now(),
+                    protein: parseInt(recipeData.protein),
+                    fat: parseInt(recipeData.fat),
+                    calories: parseInt(recipeData.calories),
+                    prepTime: parseInt(recipeData.prepTime),
+                    ingredients: recipeData.ingredients.filter(i => i.trim()),
+                    instructions: recipeData.instructions.filter(i => i.trim()),
+                    tags: recipeData.tags
+                };
+                onSave(newRecipe);
+            };
+
+            if (!isOpen) return null;
+
+            return (
+                <div className="modal" onClick={onClose}>
+                    <div className="modal-content" onClick={e => e.stopPropagation()}>
+                        <div className="modal-header">
+                            <h2>Neues Rezept hinzufügen</h2>
+                            <button className="action-btn" onClick={onClose}>
+                                <i className="fas fa-times"></i>
+                            </button>
+                        </div>
+                        <form onSubmit={handleSubmit} className="modal-body">
+                            <div className="form-group">
+                                <label>Rezeptname *</label>
+                                <input
+                                    type="text"
+                                    value={recipeData.title}
+                                    onChange={(e) => handleInputChange('title', e.target.value)}
+                                    required
+                                />
+                            </div>
+
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem' }}>
+                                <div className="form-group">
+                                    <label>Protein (g) *</label>
+                                    <input
+                                        type="number"
+                                        value={recipeData.protein}
+                                        onChange={(e) => handleInputChange('protein', e.target.value)}
+                                        required
+                                        min="120"
+                                    />
+                                </div>
+                                <div className="form-group">
+                                    <label>Fett (g) *</label>
+                                    <input
+                                        type="number"
+                                        value={recipeData.fat}
+                                        onChange={(e) => handleInputChange('fat', e.target.value)}
+                                        required
+                                        max="10"
+                                    />
+                                </div>
+                                <div className="form-group">
+                                    <label>Kalorien</label>
+                                    <input
+                                        type="number"
+                                        value={recipeData.calories}
+                                        onChange={(e) => handleInputChange('calories', e.target.value)}
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="form-group">
+                                <label>Beschreibung</label>
+                                <textarea
+                                    value={recipeData.description}
+                                    onChange={(e) => handleInputChange('description', e.target.value)}
+                                />
+                            </div>
+
+                            <div className="form-group">
+                                <label>Zutaten *</label>
+                                {recipeData.ingredients.map((ingredient, index) => (
+                                    <div key={index} style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                                        <input
+                                            type="text"
+                                            value={ingredient}
+                                            onChange={(e) => handleArrayChange('ingredients', index, e.target.value)}
+                                            placeholder="z.B. 300g Hähnchenbrust"
+                                        />
+                                        <button type="button" className="btn btn-secondary" onClick={() => removeArrayItem('ingredients', index)}>
+                                            <i className="fas fa-minus"></i>
+                                        </button>
+                                    </div>
+                                ))}
+                                <button type="button" className="btn btn-secondary" onClick={() => addArrayItem('ingredients')}>
+                                    <i className="fas fa-plus"></i> Zutat hinzufügen
+                                </button>
+                            </div>
+
+                            <div className="form-group">
+                                <label>Zubereitungsschritte *</label>
+                                {recipeData.instructions.map((instruction, index) => (
+                                    <div key={index} style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                                        <textarea
+                                            value={instruction}
+                                            onChange={(e) => handleArrayChange('instructions', index, e.target.value)}
+                                            placeholder={`Schritt ${index + 1}`}
+                                            rows="2"
+                                        />
+                                        <button type="button" className="btn btn-secondary" onClick={() => removeArrayItem('instructions', index)}>
+                                            <i className="fas fa-minus"></i>
+                                        </button>
+                                    </div>
+                                ))}
+                                <button type="button" className="btn btn-secondary" onClick={() => addArrayItem('instructions')}>
+                                    <i className="fas fa-plus"></i> Schritt hinzufügen
+                                </button>
+                            </div>
+
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                                <div className="form-group">
+                                    <label>Zubereitungszeit (Min) *</label>
+                                    <input
+                                        type="number"
+                                        value={recipeData.prepTime}
+                                        onChange={(e) => handleInputChange('prepTime', e.target.value)}
+                                        required
+                                    />
+                                </div>
+                                <div className="form-group">
+                                    <label>Schwierigkeit</label>
+                                    <select
+                                        value={recipeData.difficulty}
+                                        onChange={(e) => handleInputChange('difficulty', e.target.value)}
+                                    >
+                                        <option>Einfach</option>
+                                        <option>Mittel</option>
+                                        <option>Schwer</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div className="form-actions">
+                                <button type="button" className="btn btn-secondary" onClick={onClose}>
+                                    Abbrechen
+                                </button>
+                                <button type="submit" className="btn btn-primary">
+                                    Rezept speichern
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            );
+        };
+
+        // Filter-Komponente erweitert
+        const FilterBar = ({ 
+            filters, 
+            activeFilters, 
+            excludedIngredients,
+            onFilterChange, 
+            onExcludeIngredient,
+            searchTerm, 
+            onSearchChange 
+        }) => {
+            const [ingredientInput, setIngredientInput] = useState('');
+
+            const handleAddExclusion = (e) => {
+                if (e.key === 'Enter' && ingredientInput.trim()) {
+                    onExcludeIngredient(ingredientInput.trim());
+                    setIngredientInput('');
+                }
+            };
+
+            return (
+                <div className="filter-bar">
+                    <h3>Rezepte filtern</h3>
+                    <input
+                        type="text"
+                        className="search-bar"
+                        placeholder="Rezept suchen..."
+                        value={searchTerm}
+                        onChange={(e) => onSearchChange(e.target.value)}
+                    />
+                    
+                    <div className="filter-section">
+                        <h4>Kategorien</h4>
+                        <div className="filter-options">
+                            {filters.map(filter => (
+                                <div
+                                    key={filter}
+                                    className={`filter-chip ${activeFilters.includes(filter) ? 'active' : ''}`}
+                                    onClick={() => onFilterChange(filter)}
+                                >
+                                    {filter}
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
+                    <div className="filter-section">
+                        <h4>Zutaten ausschließen</h4>
+                        <input
+                            type="text"
+                            className="search-bar"
+                            placeholder="Zutat eingeben und Enter drücken..."
+                            value={ingredientInput}
+                            onChange={(e) => setIngredientInput(e.target.value)}
+                            onKeyPress={handleAddExclusion}
+                        />
+                        <div className="filter-options">
+                            {excludedIngredients.map(ingredient => (
+                                <div
+                                    key={ingredient}
+                                    className="filter-chip excluded"
+                                    onClick={() => onExcludeIngredient(ingredient)}
+                                >
+                                    {ingredient} <i className="fas fa-times"></i>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        // Rezeptkarten-Komponente erweitert
+        const RecipeCard = ({ recipe, isFavorite, onToggleFavorite, onAddToMealPlan, onPrint, portions = 1 }) => {
+            const [expanded, setExpanded] = useState(false);
+            const [customPortions, setCustomPortions] = useState(portions);
+
+            const adjustQuantity = (quantity) => {
+                const match = quantity.match(/(\d+(?:\.\d+)?)/);
+                if (match) {
+                    const num = parseFloat(match[1]);
+                    const adjusted = num * customPortions;
+                    return quantity.replace(match[1], adjusted.toFixed(1).replace(/\.0$/, ''));
+                }
+                return quantity;
+            };
+
+            const handlePrint = (e) => {
+                e.stopPropagation();
+                const printWindow = window.open('', '_blank');
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+                
+                doc.setFontSize(20);
+                doc.text(recipe.title, 20, 20);
+                
+                doc.setFontSize(12);
+                doc.text(`Protein: ${recipe.protein * customPortions}g | Fett: ${recipe.fat * customPortions}g | Portionen: ${customPortions}`, 20, 30);
+                
+                doc.setFontSize(14);
+                doc.text('Zutaten:', 20, 45);
+                
+                doc.setFontSize(11);
+                let yPos = 55;
+                recipe.ingredients.forEach(ingredient => {
+                    doc.text(`• ${adjustQuantity(ingredient)}`, 25, yPos);
+                    yPos += 7;
+                });
+                
+                doc.setFontSize(14);
+                doc.text('Zubereitung:', 20, yPos + 10);
+                
+                doc.setFontSize(11);
+                yPos += 20;
+                recipe.instructions.forEach((instruction, index) => {
+                    const lines = doc.splitTextToSize(`${index + 1}. ${instruction}`, 165);
+                    lines.forEach(line => {
+                        if (yPos > 270) {
+                            doc.addPage();
+                            yPos = 20;
+                        }
+                        doc.text(line, 25, yPos);
+                        yPos += 7;
+                    });
+                    yPos += 3;
+                });
+                
+                doc.save(`${recipe.title}.pdf`);
+            };
+
+            return (
+                <div className="recipe-card">
+                    <div className="recipe-actions">
+                        <button 
+                            className={`action-btn favorite ${isFavorite ? 'active' : ''}`}
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                onToggleFavorite(recipe.id);
+                            }}
+                        >
+                            <i className={`fas fa-heart`}></i>
+                        </button>
+                        <button 
+                            className="action-btn"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                onAddToMealPlan(recipe);
+                            }}
+                        >
+                            <i className="fas fa-calendar-plus"></i>
+                        </button>
+                        <button 
+                            className="action-btn"
+                            onClick={handlePrint}
+                        >
+                            <i className="fas fa-print"></i>
+                        </button>
+                    </div>
+                    <div className="recipe-header" onClick={() => setExpanded(!expanded)}>
+                        <h3>{recipe.title}</h3>
+                        <div className="recipe-stats">
+                            <span><i className="fas fa-dumbbell"></i> {Math.round(recipe.protein * customPortions)}g Protein</span>
+                            <span><i className="fas fa-fire"></i> {Math.round(recipe.fat * customPortions)}g Fett</span>
+                            <span><i className="fas fa-clock"></i> {recipe.prepTime} Min</span>
+                        </div>
+                    </div>
+                    <div className="recipe-body">
+                        <p className="recipe-description">{recipe.description}</p>
+                        
+                        <div className="portion-calculator">
+                            <span>Portionen:</span>
+                            <button 
+                                className="btn btn-secondary" 
+                                onClick={() => setCustomPortions(Math.max(1, customPortions - 1))}
+                                style={{ padding: '0.25rem 0.5rem' }}
+                            >
+                                -
+                            </button>
+                            <input
+                                type="number"
+                                className="portion-input"
+                                value={customPortions}
+                                onChange={(e) => setCustomPortions(Math.max(1, parseInt(e.target.value) || 1))}
+                                min="1"
+                            />
+                            <button 
+                                className="btn btn-secondary"
+                                onClick={() => setCustomPortions(customPortions + 1)}
+                                style={{ padding: '0.25rem 0.5rem' }}
+                            >
+                                +
+                            </button>
+                        </div>
+
+                        <h4>Zutaten:</h4>
+                        <ul className="ingredients-list">
+                            {recipe.ingredients.map((ingredient, index) => (
+                                <li key={index}>{adjustQuantity(ingredient)}</li>
+                            ))}
+                        </ul>
+                        
+                        {expanded && (
+                            <div className="recipe-instructions">
+                                <h4>Zubereitung:</h4>
+                                <ol>
+                                    {recipe.instructions.map((step, index) => (
+                                        <li key={index}>{step}</li>
+                                    ))}
+                                </ol>
+                            </div>
+                        )}
+                        <div className="recipe-tags">
+                            {recipe.tags.map((tag, index) => (
+                                <span key={index} className="recipe-tag">{tag}</span>
+                            ))}
+                            {recipe.difficulty && (
+                                <span className="recipe-tag">
+                                    <i className="fas fa-signal"></i> {recipe.difficulty}
+                                </span>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        // Meal Planner Component
+        const MealPlanner = ({ mealPlan, recipes, onUpdateMealPlan }) => {
+            const days = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag', 'Sonntag'];
+            const meals = ['Frühstück', 'Mittagessen', 'Abendessen'];
+
+            const handleMealSelect = (day, meal, recipeId) => {
+                const newPlan = { ...mealPlan };
+                if (!newPlan[day]) newPlan[day] = {};
+                newPlan[day][meal] = recipeId;
+                onUpdateMealPlan(newPlan);
+            };
+
+            const getRecipeTitle = (recipeId) => {
+                const recipe = recipes.find(r => r.id === recipeId);
+                return recipe ? recipe.title : 'Wählen';
+            };
+
+            return (
+                <div className="meal-planner">
+                    <h3>Wochenplaner</h3>
+                    <div className="week-grid">
+                        {days.map(day => (
+                            <div key={day} className="day-card">
+                                <h4>{day}</h4>
+                                {meals.map(meal => (
+                                    <div 
+                                        key={meal}
+                                        className={`meal-slot ${mealPlan[day]?.[meal] ? 'filled' : ''}`}
+                                        onClick={() => {
+                                            const recipeId = prompt('Rezept-ID eingeben:');
+                                            if (recipeId) handleMealSelect(day, meal, parseInt(recipeId));
+                                        }}
+                                    >
+                                        {mealPlan[day]?.[meal] ? 
+                                            <small>{getRecipeTitle(mealPlan[day][meal])}</small> : 
+                                            <small>{meal}</small>
+                                        }
+                                    </div>
+                                ))}
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            );
+        };
+
+        // Shopping List Component
+        const ShoppingList = ({ recipes, mealPlan }) => {
+            const [shoppingList, setShoppingList] = useState({});
+
+            useEffect(() => {
+                const list = {};
+                Object.values(mealPlan).forEach(dayPlan => {
+                    Object.values(dayPlan).forEach(recipeId => {
+                        const recipe = recipes.find(r => r.id === recipeId);
+                        if (recipe) {
+                            recipe.ingredients.forEach(ingredient => {
+                                const match = ingredient.match(/^(\d+(?:\.\d+)?)\s*(\w+)\s+(.+)$/);
+                                if (match) {
+                                    const [, amount, unit, item] = match;
+                                    const key = `${item}_${unit}`;
+                                    if (list[key]) {
+                                        list[key].amount += parseFloat(amount);
+                                    } else {
+                                        list[key] = {
+                                            item,
+                                            unit,
+                                            amount: parseFloat(amount)
+                                        };
+                                    }
+                                } else {
+                                    list[ingredient] = { item: ingredient, amount: 1, unit: 'x' };
+                                }
+                            });
+                        }
+                    });
+                });
+                setShoppingList(list);
+            }, [mealPlan, recipes]);
+
+            const exportList = () => {
+                const text = Object.values(shoppingList)
+                    .map(item => `${item.amount} ${item.unit} ${item.item}`)
+                    .join('\n');
+                const blob = new Blob([text], { type: 'text/plain' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'einkaufsliste.txt';
+                a.click();
+            };
+
+            return (
+                <div className="shopping-list">
+                    <h3>
+                        Einkaufsliste
+                        <button className="btn btn-primary" onClick={exportList}>
+                            <i className="fas fa-download"></i> Export
+                        </button>
+                    </h3>
+                    <ul className="shopping-list-items">
+                        {Object.values(shoppingList).map((item, index) => (
+                            <li key={index}>
+                                <span>{Math.round(item.amount * 10) / 10} {item.unit} {item.item}</span>
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+            );
+        };
+
+        // Rezeptliste-Komponente
+        const RecipeList = ({ recipes, favorites, onToggleFavorite, onAddToMealPlan }) => {
+            if (recipes.length === 0) {
+                return (
+                    <div className="no-results">
+                        <i className="fas fa-search"></i>
+                        <h3>Keine Rezepte gefunden</h3>
+                        <p>Versuche es mit anderen Filtern oder Suchbegriffen.</p>
+                    </div>
+                );
+            }
+
+            return (
+                <div className="recipe-grid">
+                    {recipes.map(recipe => (
+                        <RecipeCard 
+                            key={recipe.id} 
+                            recipe={recipe}
+                            isFavorite={favorites.includes(recipe.id)}
+                            onToggleFavorite={onToggleFavorite}
+                            onAddToMealPlan={onAddToMealPlan}
+                        />
+                    ))}
+                </div>
+            );
+        };
+
+        // Haupt-App-Komponente
+        const App = () => {
+            const [darkMode, setDarkMode] = useLocalStorage('darkMode', false);
+            const [activeFilters, setActiveFilters] = useState([]);
+            const [excludedIngredients, setExcludedIngredients] = useLocalStorage('excludedIngredients', []);
+            const [searchTerm, setSearchTerm] = useState('');
+            const [randomRecipe, setRandomRecipe] = useState(null);
+            const [showNewRecipeModal, setShowNewRecipeModal] = useState(false);
+            const [userRecipes, setUserRecipes] = useLocalStorage('userRecipes', []);
+            const [favorites, setFavorites] = useLocalStorage('favorites', []);
+            const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
+            const [mealPlan, setMealPlan] = useLocalStorage('mealPlan', {});
+            const [showMealPlanner, setShowMealPlanner] = useState(false);
+            const [showShoppingList, setShowShoppingList] = useState(false);
+            const [notification, setNotification] = useState(null);
+
+            // Alle Rezepte (Original + User)
+            const allRecipes = [...recipesData, ...userRecipes];
+
+            // Alle einzigartigen Tags extrahieren
+            const allTags = useMemo(() => {
+                const tags = new Set();
+                allRecipes.forEach(recipe => {
+                    recipe.tags.forEach(tag => tags.add(tag));
+                });
+                return Array.from(tags).sort();
+            }, [allRecipes]);
+
+            // Gefilterte Rezepte
+            const filteredRecipes = useMemo(() => {
+                let recipes = allRecipes;
+
+                // Favoriten-Filter
+                if (showFavoritesOnly) {
+                    recipes = recipes.filter(recipe => favorites.includes(recipe.id));
+                }
+
+                return recipes.filter(recipe => {
+                    // Suchbegriff
+                    const matchesSearch = searchTerm === '' || 
+                        recipe.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                        recipe.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                        recipe.ingredients.some(ing => ing.toLowerCase().includes(searchTerm.toLowerCase()));
+
+                    // Kategorie-Filter
+                    const matchesFilters = activeFilters.length === 0 || 
+                        activeFilters.every(filter => recipe.tags.includes(filter));
+
+                    // Ausgeschlossene Zutaten
+                    const hasExcludedIngredients = excludedIngredients.some(excluded => 
+                        recipe.ingredients.some(ing => 
+                            ing.toLowerCase().includes(excluded.toLowerCase())
+                        )
+                    );
+
+                    return matchesSearch && matchesFilters && !hasExcludedIngredients;
+                });
+            }, [searchTerm, activeFilters, excludedIngredients, allRecipes, showFavoritesOnly, favorites]);
+
+            useEffect(() => {
+                if (darkMode) {
+                    document.body.classList.add('dark-mode');
+                } else {
+                    document.body.classList.remove('dark-mode');
+                }
+            }, [darkMode]);
+
+            const handleFilterChange = (filter) => {
+                setActiveFilters(prev => 
+                    prev.includes(filter) 
+                        ? prev.filter(f => f !== filter)
+                        : [...prev, filter]
+                );
+            };
+
+            const handleExcludeIngredient = (ingredient) => {
+                setExcludedIngredients(prev => {
+                    if (prev.includes(ingredient)) {
+                        return prev.filter(i => i !== ingredient);
+                    }
+                    return [...prev, ingredient];
+                });
+            };
+
+            const showRandomRecipe = () => {
+                if (filteredRecipes.length === 0) return;
+                const randomIndex = Math.floor(Math.random() * filteredRecipes.length);
+                setRandomRecipe(filteredRecipes[randomIndex]);
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            };
+
+            const handleSaveNewRecipe = (recipe) => {
+                setUserRecipes(prev => [...prev, recipe]);
+                setShowNewRecipeModal(false);
+                setNotification('Rezept erfolgreich gespeichert!');
+            };
+
+            const toggleFavorite = (recipeId) => {
+                setFavorites(prev => 
+                    prev.includes(recipeId)
+                        ? prev.filter(id => id !== recipeId)
+                        : [...prev, recipeId]
+                );
+            };
+
+            const handleAddToMealPlan = (recipe) => {
+                setNotification(`${recipe.title} zum Wochenplaner hinzugefügt!`);
+                // Hier könnte man ein Modal öffnen zur Auswahl von Tag und Mahlzeit
+            };
+
+            const exportAllRecipes = () => {
+                const dataStr = JSON.stringify(filteredRecipes, null, 2);
+                const blob = new Blob([dataStr], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'rezepte-export.json';
+                a.click();
+            };
+
+            const importRecipes = (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        try {
+                            const recipes = JSON.parse(e.target.result);
+                            setUserRecipes(prev => [...prev, ...recipes]);
+                            setNotification(`${recipes.length} Rezepte importiert!`);
+                        } catch (error) {
+                            alert('Fehler beim Importieren der Rezepte');
+                        }
+                    };
+                    reader.readAsText(file);
+                }
+            };
+
+            return (
+                <div className="app">
+                    <header className="header">
+                        <div className="header-controls">
+                            <button 
+                                className="header-btn"
+                                onClick={() => setDarkMode(!darkMode)}
+                            >
+                                <i className={`fas fa-${darkMode ? 'sun' : 'moon'}`}></i> 
+                                {darkMode ? ' Light' : ' Dark'}
+                            </button>
+                            <button 
+                                className="header-btn"
+                                onClick={() => setShowFavoritesOnly(!showFavoritesOnly)}
+                            >
+                                <i className="fas fa-heart"></i> 
+                                {showFavoritesOnly ? ' Alle' : ' Favoriten'}
+                            </button>
+                        </div>
+                        <h1>Proteinreiche, fettarme Rezepte</h1>
+                        <p>Über 120g Protein & unter 10% Fettanteil pro Portion</p>
+                    </header>
+
+                    <div className="container">
+                        <div className="stats-summary">
+                            <h3>Deine Protein-Küche</h3>
+                            <div className="stats-grid">
+                                <div className="stat-item">
+                                    <div className="stat-value">{filteredRecipes.length}</div>
+                                    <div className="stat-label">Rezepte</div>
+                                </div>
+                                <div className="stat-item">
+                                    <div className="stat-value">{favorites.length}</div>
+                                    <div className="stat-label">Favoriten</div>
+                                </div>
+                                <div className="stat-item">
+                                    <div className="stat-value">{userRecipes.length}</div>
+                                    <div className="stat-label">Eigene Rezepte</div>
+                                </div>
+                                <div className="stat-item">
+                                    <div className="stat-value">120g+</div>
+                                    <div className="stat-label">Protein/Portion</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="controls">
+                            <button className="control-btn" onClick={showRandomRecipe}>
+                                <i className="fas fa-dice"></i> Zufallsrezept
+                            </button>
+                            <button className="control-btn secondary" onClick={() => setShowNewRecipeModal(true)}>
+                                <i className="fas fa-plus"></i> Neues Rezept
+                            </button>
+                            <button className="control-btn secondary" onClick={() => setShowMealPlanner(!showMealPlanner)}>
+                                <i className="fas fa-calendar"></i> Wochenplaner
+                            </button>
+                            <button className="control-btn secondary" onClick={() => setShowShoppingList(!showShoppingList)}>
+                                <i className="fas fa-shopping-cart"></i> Einkaufsliste
+                            </button>
+                            <button className="control-btn secondary" onClick={exportAllRecipes}>
+                                <i className="fas fa-download"></i> Export
+                            </button>
+                            <label className="control-btn secondary" style={{ cursor: 'pointer' }}>
+                                <i className="fas fa-upload"></i> Import
+                                <input 
+                                    type="file" 
+                                    accept=".json"
+                                    onChange={importRecipes}
+                                    style={{ display: 'none' }}
+                                />
+                            </label>
+                        </div>
+
+                        {showMealPlanner && (
+                            <MealPlanner 
+                                mealPlan={mealPlan}
+                                recipes={allRecipes}
+                                onUpdateMealPlan={setMealPlan}
+                            />
+                        )}
+
+                        {showShoppingList && (
+                            <ShoppingList 
+                                recipes={allRecipes}
+                                mealPlan={mealPlan}
+                            />
+                        )}
+
+                        <FilterBar 
+                            filters={allTags}
+                            activeFilters={activeFilters}
+                            excludedIngredients={excludedIngredients}
+                            onFilterChange={handleFilterChange}
+                            onExcludeIngredient={handleExcludeIngredient}
+                            searchTerm={searchTerm}
+                            onSearchChange={setSearchTerm}
+                        />
+
+                        {randomRecipe && (
+                            <div style={{ marginBottom: '2rem' }}>
+                                <h2 style={{ textAlign: 'center', marginBottom: '1rem', color: 'var(--primary-color)' }}>
+                                    <i className="fas fa-star"></i> Zufallsrezept
+                                </h2>
+                                <div className="recipe-grid" style={{ gridTemplateColumns: '1fr', maxWidth: '600px', margin: '0 auto' }}>
+                                    <RecipeCard 
+                                        recipe={randomRecipe}
+                                        isFavorite={favorites.includes(randomRecipe.id)}
+                                        onToggleFavorite={toggleFavorite}
+                                        onAddToMealPlan={handleAddToMealPlan}
+                                    />
+                                </div>
+                            </div>
+                        )}
+
+                        <RecipeList 
+                            recipes={filteredRecipes}
+                            favorites={favorites}
+                            onToggleFavorite={toggleFavorite}
+                            onAddToMealPlan={handleAddToMealPlan}
+                        />
+                    </div>
+
+                    <NewRecipeModal 
+                        isOpen={showNewRecipeModal}
+                        onClose={() => setShowNewRecipeModal(false)}
+                        onSave={handleSaveNewRecipe}
+                    />
+
+                    {notification && (
+                        <Notification 
+                            message={notification}
+                            onClose={() => setNotification(null)}
+                        />
+                    )}
+                </div>
+            );
+        };
+
+        // App rendern
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
