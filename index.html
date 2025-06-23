@@ -3225,48 +3225,149 @@
                 return quantity;
             };
 
-            const handlePrint = (e) => {
-                e.stopPropagation();
-                const printWindow = window.open('', '_blank');
-                const { jsPDF } = window.jspdf;
-                const doc = new jsPDF();
-                
-                doc.setFontSize(20);
-                doc.text(recipe.title, 20, 20);
-                
-                doc.setFontSize(12);
-                doc.text(`Protein: ${recipe.protein * customPortions}g | Fett: ${recipe.fat * customPortions}g | Portionen: ${customPortions}`, 20, 30);
-                
-                doc.setFontSize(14);
-                doc.text('Zutaten:', 20, 45);
-                
-                doc.setFontSize(11);
-                let yPos = 55;
-                recipe.ingredients.forEach(ingredient => {
-                    doc.text(`• ${adjustQuantity(ingredient)}`, 25, yPos);
-                    yPos += 7;
-                });
-                
-                doc.setFontSize(14);
-                doc.text('Zubereitung:', 20, yPos + 10);
-                
-                doc.setFontSize(11);
-                yPos += 20;
-                recipe.instructions.forEach((instruction, index) => {
-                    const lines = doc.splitTextToSize(`${index + 1}. ${instruction}`, 165);
-                    lines.forEach(line => {
-                        if (yPos > 270) {
-                            doc.addPage();
-                            yPos = 20;
-                        }
-                        doc.text(line, 25, yPos);
-                        yPos += 7;
-                    });
-                    yPos += 3;
-                });
-                
-                doc.save(`${recipe.title}.pdf`);
-            };
+           const handlePrint = (e) => {
+    e.stopPropagation();
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    
+    // Farben definieren
+    const primaryColor = [46, 204, 113]; // Grün
+    const textColor = [44, 62, 80]; // Dunkelgrau
+    const lightGray = [236, 240, 241];
+    
+    // Header mit Hintergrundfarbe
+    doc.setFillColor(...primaryColor);
+    doc.rect(0, 0, 210, 40, 'F');
+    
+    // Titel
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(24);
+    doc.setFont(undefined, 'bold');
+    doc.text(recipe.title, 15, 25);
+    
+    // Nährwerte Box
+    doc.setFillColor(...lightGray);
+    doc.rect(15, 45, 180, 20, 'F');
+    doc.setTextColor(...textColor);
+    doc.setFontSize(11);
+    doc.setFont(undefined, 'normal');
+    doc.text(`Protein: ${recipe.protein * customPortions}g`, 20, 55);
+    doc.text(`Fett: ${recipe.fat * customPortions}g`, 70, 55);
+    doc.text(`Kalorien: ${recipe.calories * customPortions} kcal`, 110, 55);
+    doc.text(`Portionen: ${customPortions}`, 165, 55);
+    
+    // Beschreibung
+    let descLines = [];
+    let yPos = 75;
+    
+    if (recipe.description) {
+        doc.setFontSize(10);
+        doc.setTextColor(100, 100, 100);
+        descLines = doc.splitTextToSize(recipe.description, 180);
+        doc.text(descLines, 15, yPos);
+        yPos = 85 + (descLines.length * 4);
+    }
+    
+    // Zubereitungsinfo
+    doc.setFillColor(...primaryColor);
+    doc.setTextColor(255, 255, 255);
+    doc.roundedRect(15, yPos, 50, 8, 2, 2, 'F');
+    doc.setFontSize(10);
+    doc.text(`Zeit: ${recipe.prepTime} Min.`, 17, yPos + 5.5);
+    
+    if (recipe.difficulty) {
+        doc.roundedRect(70, yPos, 50, 8, 2, 2, 'F');
+        doc.text(`Level: ${recipe.difficulty}`, 72, yPos + 5.5);
+    }
+    
+    // Zutaten
+    yPos += 18;
+    doc.setTextColor(...primaryColor);
+    doc.setFontSize(16);
+    doc.setFont(undefined, 'bold');
+    doc.text('Zutaten', 15, yPos);
+    
+    // Zutatenliste mit Bullets
+    yPos += 8;
+    doc.setTextColor(...textColor);
+    doc.setFontSize(11);
+    doc.setFont(undefined, 'normal');
+    
+    recipe.ingredients.forEach(ingredient => {
+        if (yPos > 270) {
+            doc.addPage();
+            yPos = 20;
+        }
+        // Bullet Point
+        doc.setFillColor(...primaryColor);
+        doc.circle(18, yPos - 2, 1.5, 'F');
+        // Zutat
+        doc.text(adjustQuantity(ingredient), 25, yPos);
+        yPos += 7;
+    });
+    
+    // Zubereitung
+    yPos += 10;
+    if (yPos > 240) {
+        doc.addPage();
+        yPos = 20;
+    }
+    
+    doc.setTextColor(...primaryColor);
+    doc.setFontSize(16);
+    doc.setFont(undefined, 'bold');
+    doc.text('Zubereitung', 15, yPos);
+    
+    yPos += 8;
+    doc.setTextColor(...textColor);
+    doc.setFontSize(11);
+    doc.setFont(undefined, 'normal');
+    
+    recipe.instructions.forEach((instruction, index) => {
+        if (yPos > 250) {
+            doc.addPage();
+            yPos = 20;
+        }
+        
+        // Schrittnummer in Kreis
+        doc.setFillColor(...primaryColor);
+        doc.circle(20, yPos - 2, 4, 'F');
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(10);
+        doc.text(String(index + 1), index < 9 ? 18.5 : 17.5, yPos);
+        
+        // Anweisung
+        doc.setTextColor(...textColor);
+        doc.setFontSize(11);
+        const lines = doc.splitTextToSize(instruction, 160);
+        lines.forEach((line, lineIndex) => {
+            if (yPos > 270) {
+                doc.addPage();
+                yPos = 20;
+            }
+            doc.text(line, 30, yPos);
+            yPos += 6;
+        });
+        yPos += 4;
+    });
+    
+    // Tags am Ende
+    if (recipe.tags && recipe.tags.length > 0 && yPos < 260) {
+        yPos += 10;
+        doc.setFontSize(9);
+        doc.setTextColor(150, 150, 150);
+        doc.text('Tags: ' + recipe.tags.join(' • '), 15, yPos);
+    }
+    
+    // Footer
+    doc.setFontSize(8);
+    doc.setTextColor(180, 180, 180);
+    doc.text(`Erstellt am ${new Date().toLocaleDateString('de-DE')}`, 15, 285);
+    doc.text('Proteinreiche Rezepte', 195, 285, { align: 'right' });
+    
+    // PDF speichern
+    doc.save(`${recipe.title.replace(/[^a-z0-9äöüß ]/gi, '')}.pdf`);
+};
 
             return (
                 <div className="recipe-card">
