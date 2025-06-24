@@ -826,7 +826,186 @@
                 color: #999;
                 font-size: 12px;
             }
-        }
+
+            /* Rezept Druck-Styles */
+           /* Rezept Druck-Styles */
+            .recipe-print {
+                display: block !important;
+                width: 100%;
+                max-width: 210mm;
+                margin: 0 auto;
+                padding: 15mm;
+                font-family: Georgia, serif;
+                color: #333;
+                line-height: 1.4;
+                font-size: 11pt;
+                box-sizing: border-box;
+                height: 297mm;
+                overflow: hidden;
+            }
+            
+            .recipe-print h1 {
+                text-align: center;
+                color: #2ecc71;
+                margin-bottom: 10px;
+                font-size: 22pt;
+                border-bottom: 2px solid #2ecc71;
+                padding-bottom: 8px;
+            }
+            
+            .recipe-print .print-meta {
+                text-align: center;
+                margin-bottom: 15px;
+                padding: 8px;
+                background: #f8f9fa;
+                border-radius: 6px;
+            }
+            
+            .recipe-print .print-meta-item {
+                display: inline-block;
+                margin: 0 8px;
+                font-size: 10pt;
+                color: #555;
+            }
+            
+            .recipe-print .print-meta-item strong {
+                color: #2ecc71;
+                font-size: 11pt;
+            }
+            
+            .recipe-print .print-section {
+                margin-bottom: 15px;
+                page-break-inside: avoid;
+            }
+            
+            .recipe-print .print-section-title {
+                font-size: 14pt;
+                color: #2ecc71;
+                margin-bottom: 8px;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
+            
+            .recipe-print .print-section-title:before {
+                content: "";
+                display: inline-block;
+                width: 20px;
+                height: 2px;
+                background: #2ecc71;
+            }
+            
+            .recipe-print .print-description {
+                font-style: italic;
+                color: #666;
+                text-align: center;
+                margin-bottom: 15px;
+                font-size: 10pt;
+                padding: 0 20px;
+            }
+            
+            .recipe-print .print-ingredients-section {
+                display: flex;
+                gap: 20px;
+            }
+            
+            .recipe-print .print-ingredients {
+                list-style: none;
+                padding: 0;
+                margin: 0;
+                column-count: 2;
+                column-gap: 20px;
+                flex: 1;
+            }
+            
+            .recipe-print .print-ingredients li {
+                padding: 4px 0;
+                border-bottom: 1px dotted #ddd;
+                font-size: 10pt;
+                display: flex;
+                align-items: center;
+                break-inside: avoid;
+            }
+            
+            .recipe-print .print-ingredients li:before {
+                content: "□";
+                margin-right: 8px;
+                font-size: 14pt;
+                color: #2ecc71;
+            }
+            
+            .recipe-print .print-instructions {
+                counter-reset: step-counter;
+                list-style: none;
+                padding: 0;
+                margin: 0;
+            }
+            
+            .recipe-print .print-instructions li {
+                counter-increment: step-counter;
+                margin-bottom: 8px;
+                padding-left: 30px;
+                position: relative;
+                font-size: 10pt;
+                line-height: 1.4;
+            }
+            
+            .recipe-print .print-instructions li:before {
+                content: counter(step-counter);
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 22px;
+                height: 22px;
+                background: #2ecc71;
+                color: white;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-weight: bold;
+                font-size: 9pt;
+            }
+            
+            .recipe-print .print-tags {
+                display: flex;
+                gap: 8px;
+                flex-wrap: wrap;
+                margin-top: 10px;
+                padding-top: 10px;
+                border-top: 1px solid #ddd;
+            }
+            
+            .recipe-print .print-tag {
+                background: #f0f0f0;
+                padding: 3px 10px;
+                border-radius: 15px;
+                font-size: 9pt;
+                color: #666;
+            }
+            
+            .recipe-print .print-footer {
+                position: absolute;
+                bottom: 15mm;
+                left: 15mm;
+                right: 15mm;
+                padding-top: 10px;
+                border-top: 1px solid #eee;
+                text-align: center;
+                color: #999;
+                font-size: 9pt;
+            }
+            
+            .recipe-print .print-logo {
+                font-size: 18pt;
+                color: #2ecc71;
+                margin-bottom: 5px;
+            }
+            
+            @page {
+                size: A4;
+                margin: 0;
+            }
     </style>
 </head>
 <body>
@@ -4731,48 +4910,103 @@
                 return quantity;
             };
 
-            const handlePrint = (e) => {
+          const handlePrint = (e) => {
                 e.stopPropagation();
-                const { jsPDF } = window.jspdf;
-                const doc = new jsPDF();
                 
-                doc.setFontSize(20);
-                doc.text(recipe.title, 20, 20);
+                // HTML für die Druckvorlage erstellen
+                const printContent = `
+                    <div class="recipe-print">
+                        <div class="print-logo">🍽️ Protein-Rezept</div>
+                        <h1>${recipe.title}</h1>
+                        
+                        <div class="print-meta">
+                            <div class="print-meta-item">
+                                <strong>${Math.round(recipe.protein * customPortions)}g</strong> Protein
+                            </div>
+                            <div class="print-meta-item">
+                                <strong>${Math.round(recipe.fat * customPortions)}g</strong> Fett
+                            </div>
+                            <div class="print-meta-item">
+                                <strong>${Math.round(recipe.calories * customPortions)}</strong> Kalorien
+                            </div>
+                            <div class="print-meta-item">
+                                <strong>${customPortions}</strong> Portion${customPortions > 1 ? 'en' : ''}
+                            </div>
+                            <div class="print-meta-item">
+                                <strong>${recipe.prepTime}</strong> Minuten
+                            </div>
+                        </div>
+                        
+                        ${recipe.description ? `<div class="print-description">${recipe.description}</div>` : ''}
+                        
+                        <div class="print-section">
+                            <h2 class="print-section-title">Zutaten</h2>
+                            <ul class="print-ingredients">
+                                ${recipe.ingredients.map(ing => 
+                                    `<li>${adjustQuantity(ing)}</li>`
+                                ).join('')}
+                            </ul>
+                        </div>
+                        
+                        <div class="print-section">
+                            <h2 class="print-section-title">Zubereitung</h2>
+                            <ol class="print-instructions">
+                                ${recipe.instructions.map(instruction => 
+                                    `<li>${instruction}</li>`
+                                ).join('')}
+                            </ol>
+                        </div>
+                        
+                        ${recipe.tags && recipe.tags.length > 0 ? `
+                            <div class="print-tags">
+                                ${recipe.tags.map(tag => 
+                                    `<span class="print-tag">${tag}</span>`
+                                ).join('')}
+                                ${recipe.difficulty ? `<span class="print-tag">Schwierigkeit: ${recipe.difficulty}</span>` : ''}
+                            </div>
+                        ` : ''}
+                        
+                        <div class="print-footer">
+                            <p>Gedruckt am: ${new Date().toLocaleDateString('de-DE', { 
+                                weekday: 'long', 
+                                year: 'numeric', 
+                                month: 'long', 
+                                day: 'numeric' 
+                            })}</p>
+                            <p>Guten Appetit! 🌟</p>
+                            <p style="font-size: 12px; margin-top: 10px;">Erstellt mit dem Protein-Rezept-Manager</p>
+                        </div>
+                    </div>
+                `;
                 
-                doc.setFontSize(12);
-                doc.text(`Protein: ${recipe.protein * customPortions}g | Fett: ${recipe.fat * customPortions}g | Kalorien: ${recipe.calories * customPortions} | Portionen: ${customPortions}`, 20, 30);
+                // Style-Inhalte holen
+                const styleContent = document.querySelector('style') ? document.querySelector('style').innerHTML : '';
                 
-                doc.setFontSize(14);
-                doc.text('Zutaten:', 20, 45);
-                
-                doc.setFontSize(11);
-                let yPos = 55;
-                recipe.ingredients.forEach(ingredient => {
-                    doc.text(`• ${adjustQuantity(ingredient)}`, 25, yPos);
-                    yPos += 7;
-                });
-                
-                doc.setFontSize(14);
-                doc.text('Zubereitung:', 20, yPos + 10);
-                
-                doc.setFontSize(11);
-                yPos += 20;
-                recipe.instructions.forEach((instruction, index) => {
-                    const lines = doc.splitTextToSize(`${index + 1}. ${instruction}`, 165);
-                    lines.forEach(line => {
-                        if (yPos > 270) {
-                            doc.addPage();
-                            yPos = 20;
-                        }
-                        doc.text(line, 25, yPos);
-                        yPos += 7;
-                    });
-                    yPos += 3;
-                });
-                
-                doc.save(`${recipe.title}.pdf`);
+                // Druckfenster öffnen
+                const printWindow = window.open('', '_blank');
+                printWindow.document.write(
+                    '<!DOCTYPE html>' +
+                    '<html lang="de">' +
+                    '<head>' +
+                    '<meta charset="UTF-8">' +
+                    '<title>' + recipe.title + ' - Rezept</title>' +
+                    '<style>' + styleContent + '</style>' +
+                    '</head>' +
+                    '<body>' +
+                    printContent +
+                    '<script>' +
+                    'window.onload = function() { ' +
+                    'window.print(); ' +
+                    'window.onafterprint = function() { ' +
+                    'window.close(); ' +
+                    '}; ' +
+                    '};' +
+                    '</' + 'script>' +
+                    '</body>' +
+                    '</html>'
+                );
+                printWindow.document.close();
             };
-
             return (
                 <div className="recipe-card">
                 <div className="recipe-image">
