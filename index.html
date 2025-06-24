@@ -16,6 +16,19 @@
             box-sizing: border-box;
         }
 
+
+        /*  css für Bilder*/
+
+            .recipe-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 0;
+            display: block;
+        }
+
+        
+
         :root {
             --primary-color: #2ecc71;
             --secondary-color: #3498db;
@@ -266,16 +279,6 @@
             overflow: hidden;
         }
 
-        .recipe-image::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="%23f8f9fa"/><circle cx="30" cy="30" r="8" fill="%23dee2e6"/><polygon points="20,70 50,40 80,70" fill="%23adb5bd"/></svg>') center/cover;
-            opacity: 0.3;
-        }
 
         .recipe-actions {
             position: absolute;
@@ -766,6 +769,7 @@
             {
                 id: 1,
                 title: "Hähnchenbrust mit Brokkoli und Quinoa",
+                image: "images/Hähnchenbrust mit Brokkoli und Quinoa.png",
                 protein: 45,
                 fat: 8,
                 calories: 520,
@@ -793,6 +797,7 @@
             {
                 id: 2,
                 title: "Thunfisch-Eiweiß-Wrap",
+                image: "images/thunfisch-wraps.png",
                 protein: 48,
                 fat: 7,
                 calories: 480,
@@ -820,6 +825,7 @@
             {
                 id: 3,
                 title: "Magerquark-Protein-Bowl",
+                image: "images/Magerquark_Früchte-Bowl.jpg",
                 protein: 50,
                 fat: 6,
                 calories: 450,
@@ -847,6 +853,7 @@
             {
                 id: 4,
                 title: "Putenbrust mit Süßkartoffel",
+                image: "images/Putenbrust mit Süßkartoffel.jpg",
                 protein: 47,
                 fat: 9,
                 calories: 550,
@@ -874,6 +881,7 @@
             {
                 id: 5,
                 title: "Lachs mit Spargel und Reis",
+                image: "images/Lachs mit Spargel und Reis.jpg",
                 protein: 42,
                 fat: 10,
                 calories: 580,
@@ -901,6 +909,7 @@
             {
                 id: 6,
                 title: "Kabeljau mit Linsen und Spinat",
+                image: "images/Kabeljau mit Linsen und Spinat.jpg",
                 protein: 46,
                 fat: 7,
                 calories: 510,
@@ -928,6 +937,7 @@
             {
                 id: 7,
                 title: "Protein-Pancakes mit Beerenkompott",
+                image: "images/Protein-Pancakes mit Beerenkompott.jpg",
                 protein: 45,
                 fat: 8,
                 calories: 480,
@@ -956,6 +966,7 @@
             {
                 id: 8,
                 title: "Rinderfilet mit Champignons",
+                image: "images/rinderfilet-mit-pilzen1.jpg",
                 protein: 48,
                 fat: 9,
                 calories: 540,
@@ -983,6 +994,7 @@
             {
                 id: 9,
                 title: "Garnelen-Zucchini-Nudeln",
+                image: "images/Garnelen-Zucchini-Nudeln.jpg",
                 protein: 43,
                 fat: 6,
                 calories: 420,
@@ -1010,6 +1022,7 @@
             {
                 id: 10,
                 title: "Eiweißbrot-Sandwich mit Putenbrust",
+                image: "images/Putenbrust-Sandwich.jpg",
                 protein: 45,
                 fat: 7,
                 calories: 490,
@@ -1037,6 +1050,7 @@
             {
                 id: 11,
                 title: "Seelachs mit Erbsenpüree",
+                image: "images/Seelachs mit Erbsenpüree.jpg",
                 protein: 47,
                 fat: 8,
                 calories: 520,
@@ -1064,6 +1078,7 @@
             {
                 id: 12,
                 title: "Protein-Chili sin Carne",
+                image: "images/Protein-Chili sin Carne.jpg",
                 protein: 45,
                 fat: 9,
                 calories: 530,
@@ -1092,6 +1107,7 @@
             {
                 id: 13,
                 title: "Hähnchen-Gemüse-Spieße",
+                image: "images/Hähnchen-Gemüse-Spieße.jpg",
                 protein: 46,
                 fat: 7,
                 calories: 480,
@@ -1121,6 +1137,7 @@
             {
                 id: 14,
                 title: "Forelle mit Mandeln und Brokkoli",
+                image: "images/Forelle mit Mandeln und Brokkoli.jpg",
                 protein: 47,
                 fat: 10,
                 calories: 540,
@@ -1148,6 +1165,7 @@
             {
                 id: 15,
                 title: "Protein-Shakshuka",
+                image: "images/Protein-Shakshuka.jpg",
                 protein: 42,
                 fat: 8,
                 calories: 470,
@@ -1176,6 +1194,7 @@
             {
     id: 16,
     title: "Putenschnitzel mit Blumenkohlpüree",
+    image: "images/Putenschnitzel mit Blumenkohlpüree.jpg",
     protein: 48,
     fat: 6,
     calories: 490,
@@ -1204,6 +1223,7 @@
 {
     id: 17,
     title: "Thunfisch-Quinoa-Salat",
+    image: "images/Thunfisch-Quinoa-Salat.jpg",
     protein: 44,
     fat: 9,
     calories: 510,
@@ -1232,6 +1252,7 @@
 {
     id: 18,
     title: "Hähnchen-Curry mit Basmatireis",
+    image: "images/Hähnchen-Curry mit Basmatireis.jpg",
     protein: 47,
     fat: 8,
     calories: 550,
@@ -1260,6 +1281,7 @@
 {
     id: 19,
     title: "Protein-Overnight-Oats",
+    image: "images/Protein-Overnight-Oats.jpg",
     protein: 42,
     fat: 7,
     calories: 460,
@@ -1288,6 +1310,7 @@
 {
     id: 20,
     title: "Zanderfilet mit Spargel-Tomaten-Gemüse",
+    image: "images/Zanderfilet mit Spargel-Tomaten-Gemüse.jpg",
     protein: 46,
     fat: 7,
     calories: 480,
@@ -1316,6 +1339,7 @@
 {
     id: 21,
     title: "Rindertatar mit Quark-Dip",
+    image: "images/Rindertatar mit Quark-Dip.jpg",
     protein: 48,
     fat: 9,
     calories: 520,
@@ -1344,6 +1368,7 @@
 {
     id: 22,
     title: "Hähnchen-Gemüse-Auflauf",
+    image: "images/Hähnchen-Gemüse-Auflauf.jpg",
     protein: 45,
     fat: 8,
     calories: 510,
@@ -1373,6 +1398,7 @@
 {
     id: 23,
     title: "Proteinreiche Linsensuppe",
+    image: "images/Proteinreiche Linsensuppe.jpg",
     protein: 43,
     fat: 6,
     calories: 490,
@@ -1401,6 +1427,7 @@
 {
     id: 24,
     title: "Jakobsmuscheln mit Erbsenpüree",
+    image: "images/Jakobsmuscheln mit Erbsenpüree.jpg",
     protein: 42,
     fat: 8,
     calories: 470,
@@ -1428,6 +1455,7 @@
 {
     id: 25,
     title: "Turkey-Bacon-Wrap",
+    image: "images/Turkey-Bacon-Wrap.jpg",
     protein: 46,
     fat: 9,
     calories: 520,
@@ -1456,6 +1484,7 @@
 {
     id: 26,
     title: "Proteinreicher Griechischer Salat",
+    image: "images/Proteinreicher Griechischer Salat.jpg",
     protein: 43,
     fat: 10,
     calories: 510,
@@ -1484,6 +1513,7 @@
 {
     id: 27,
     title: "Seitan-Geschnetzeltes",
+    image: "images/Seitan-Geschnetzeltes.jpg",
     protein: 47,
     fat: 7,
     calories: 500,
@@ -1512,6 +1542,7 @@
 {
     id: 28,
     title: "Protein-Pizza mit Thunfischboden",
+    image: "images/Protein-Pizza mit Thunfischboden.jpg",
     protein: 45,
     fat: 8,
     calories: 490,
@@ -1540,6 +1571,7 @@
 {
     id: 29,
     title: "Kabeljau-Spieße mit Gemüse",
+    image: "images/Kabeljau-Spieße mit Gemüse.jpg",
     protein: 43,
     fat: 6,
     calories: 470,
@@ -1569,6 +1601,7 @@
 {
     id: 30,
     title: "Hähnchen-Bohnen-Bowl",
+    image: "images/Hähnchen-Bohnen-Bowl.jpg",
     protein: 47,
     fat: 7,
     calories: 520,
@@ -1597,6 +1630,7 @@
 {
     id: 31,
     title: "Putenhackbällchen in Tomatensauce",
+    image: "images/Putenhackbällchen in Tomatensauce.jpg",
     protein: 46,
     fat: 8,
     calories: 510,
@@ -1626,6 +1660,7 @@
 {
     id: 32,
     title: "Protein-Smoothie-Bowl",
+    image: "images/Protein-Smoothie-Bowl.jpg",
     protein: 42,
     fat: 7,
     calories: 450,
@@ -1653,6 +1688,7 @@
 {
     id: 33,
     title: "Räucherlachs-Omelett",
+    image: "images/Räucherlachs-Omelett.jpg",
     protein: 44,
     fat: 10,
     calories: 480,
@@ -1681,6 +1717,7 @@
 {
     id: 34,
     title: "Hähnchen-Süßkartoffel-Curry",
+    image: "images/Hähnchen-Süßkartoffel-Curry.jpg",
     protein: 45,
     fat: 9,
     calories: 540,
@@ -1709,6 +1746,7 @@
 {
     id: 35,
     title: "Proteinreiche Gemüselasagne",
+    image: "images/Proteinreiche Gemüselasagne.jpg",
     protein: 43,
     fat: 8,
     calories: 520,
@@ -1737,6 +1775,7 @@
 {
     id: 36,
     title: "Dorsch mit Senfsauce",
+    image: "images/Dorsch mit Senfsauce.jpg",
     protein: 47,
     fat: 6,
     calories: 490,
@@ -1766,6 +1805,7 @@
 {
     id: 37,
     title: "Protein-Burrito-Bowl",
+    image: "images/Protein-Burrito-Bowl.jpg",
     protein: 48,
     fat: 9,
     calories: 550,
@@ -1794,6 +1834,7 @@
 {
     id: 38,
     title: "Garnelen-Brokkoli-Pfanne",
+    image: "images/Garnelen-Brokkoli-Pfanne.jpg",
     protein: 43,
     fat: 7,
     calories: 470,
@@ -1822,6 +1863,7 @@
 {
     id: 39,
     title: "Hähnchen-Spinat-Rolle",
+    image: "images/Hähnchen-Spinat-Rolle.jpg",
     protein: 47,
     fat: 8,
     calories: 510,
@@ -1850,6 +1892,7 @@
 {
     id: 40,
     title: "Proteinreiche Minestrone",
+    image: "images/Proteinreiche Minestrone.jpg",
     protein: 42,
     fat: 6,
     calories: 480,
@@ -1879,6 +1922,7 @@
 {
     id: 41,
     title: "Tofu-Gemüse-Stir-Fry",
+    image: "images/Tofu-Gemüse-Stir-Fry.jpg",
     protein: 42,
     fat: 9,
     calories: 490,
@@ -1907,6 +1951,7 @@
 {
     id: 42,
     title: "Heilbutt mit Kräuterkruste",
+    image: "images/Heilbutt mit Kräuterkruste.jpg",
     protein: 47,
     fat: 8,
     calories: 520,
@@ -1935,6 +1980,7 @@
 {
     id: 43,
     title: "Protein-Frittata",
+    image: "images/Protein-Frittata.jpg",
     protein: 43,
     fat: 8,
     calories: 490,
@@ -1963,6 +2009,7 @@
 {
     id: 44,
     title: "Hähnchen-Avocado-Salat",
+    image: "images/Hähnchen-Avocado-Salat.jpg",
     protein: 45,
     fat: 10,
     calories: 520,
@@ -1991,6 +2038,7 @@
 {
     id: 45,
     title: "Putenschnitzel Hawaii",
+    image: "images/Putenschnitzel Hawaii.jpg",
     protein: 47,
     fat: 7,
     calories: 510,
@@ -2019,6 +2067,7 @@
 {
     id: 46,
     title: "Protein-Chia-Pudding",
+    image: "images/Protein-Chia-Pudding.jpg",
     protein: 42,
     fat: 8,
     calories: 460,
@@ -2046,6 +2095,7 @@
 {
     id: 47,
     title: "Rindergulasch mit Pilzen",
+    image: "images/Rindergulasch mit Pilzen.jpg",
     protein: 48,
     fat: 9,
     calories: 540,
@@ -2074,6 +2124,7 @@
 {
     id: 48,
     title: "Lachs-Spinat-Quiche ohne Boden",
+    image: "images/Lachs-Spinat-Quiche ohne Boden.jpg",
     protein: 46,
     fat: 10,
     calories: 520,
@@ -2102,6 +2153,7 @@
 {
     id: 49,
     title: "Hähnchen-Kichererbsen-Curry",
+    image: "images/cremiges-hahnchencurry-mit-kichererbsen-68a1207a.jpg",
     protein: 47,
     fat: 8,
     calories: 530,
@@ -2130,6 +2182,7 @@
 {
     id: 50,
     title: "Proteinreiche Burritos",
+    image: "images/Proteinreiche Burritos.jpg",
     protein: 47,
     fat: 9,
     calories: 540,
@@ -2158,6 +2211,7 @@
 {
     id: 51,
     title: "Seeteufel-Spieße",
+    image: "images/Seeteufel-Spieße.jpg",
     protein: 45,
     fat: 7,
     calories: 490,
@@ -2186,6 +2240,7 @@
 {
     id: 52,
     title: "Protein-Käsekuchen ohne Boden",
+    image: "images/Protein-Käsekuchen ohne Boden.jpg",
     protein: 42,
     fat: 6,
     calories: 450,
@@ -2214,6 +2269,7 @@
 {
     id: 53,
     title: "Hähnchen-Gemüse-Couscous",
+    image: "images/Hähnchen-Gemüse-Couscous.jpg",
     protein: 46,
     fat: 8,
     calories: 520,
@@ -2242,6 +2298,7 @@
 {
     id: 54,
     title: "Tempeh-Gemüse-Pfanne",
+    image: "images/Tempeh-Gemüse-Pfanne.jpg",
     protein: 43,
     fat: 9,
     calories: 510,
@@ -2270,6 +2327,7 @@
 {
     id: 55,
     title: "Putenbrust-Involtini",
+    image: "images/Putenbrust-Involtini.jpg",
     protein: 47,
     fat: 8,
     calories: 520,
@@ -2298,6 +2356,7 @@
 {
     id: 56,
     title: "Protein-Sushi-Bowl",
+    image: "images/Protein-Sushi-Bowl.jpg",
     protein: 44,
     fat: 7,
     calories: 500,
@@ -2325,6 +2384,7 @@
 {
     id: 57,
     title: "Hähnchen-Feta-Auflauf",
+    image: "images/Hähnchen-Feta-Auflauf.jpg",
     protein: 46,
     fat: 9,
     calories: 530,
@@ -2353,6 +2413,7 @@
 {
     id: 58,
     title: "Protein-Poke-Bowl",
+    image: "images/Protein-Poke-Bowl.jpg",
     protein: 45,
     fat: 8,
     calories: 510,
@@ -2381,6 +2442,7 @@
 {
     id: 59,
     title: "Rinderfilet-Carpaccio mit Rucola",
+    image: "images/Rinderfilet-Carpaccio mit Rucola.jpg",
     protein: 47,
     fat: 10,
     calories: 520,
@@ -2409,6 +2471,7 @@
 {
     id: 60,
     title: "Protein-Gemüse-Lasagne",
+    image: "images/Protein-Gemüse-Lasagne.jpg",
     protein: 43,
     fat: 8,
     calories: 510,
@@ -2437,6 +2500,7 @@
 {
     id: 61,
     title: "Hähnchen-Teriyaki-Spieße",
+    image: "images/Hähnchen-Teriyaki-Spieße.jpg",
     protein: 46,
     fat: 7,
     calories: 510,
@@ -2465,6 +2529,7 @@
 {
     id: 62,
     title: "Meeresfrüchte-Paella",
+    image: "images/Meeresfrüchte-Paella.jpg",
     protein: 45,
     fat: 8,
     calories: 530,
@@ -2493,6 +2558,7 @@
 {
     id: 63,
     title: "Protein-Müsli-Riegel",
+    image: "images/Protein-Müsli-Riegel.jpg",
     protein: 42,
     fat: 9,
     calories: 480,
@@ -2521,6 +2587,7 @@
 {
     id: 64,
     title: "Putenhackbällchen Asia-Style",
+    image: "images/Putenhackbällchen Asia-Style.jpg",
     protein: 47,
     fat: 7,
     calories: 510,
@@ -2549,6 +2616,7 @@
 {
     id: 65,
     title: "Linsenpfannkuchen mit Gemüse",
+    image: "images/Linsenpfannkuchen mit Gemüse.jpg",
     protein: 43,
     fat: 8,
     calories: 490,
@@ -2577,6 +2645,7 @@
 {
     id: 66,
     title: "Hähnchen-Quinoa-Burger",
+    image: "images/Hähnchen-Quinoa-Burger.jpg",
     protein: 45,
     fat: 8,
     calories: 520,
@@ -2605,6 +2674,7 @@
 {
     id: 67,
     title: "Kabeljau-Kokos-Curry",
+    image: "images/Kabeljau-Kokos-Curry.jpg",
     protein: 44,
     fat: 9,
     calories: 510,
@@ -2633,6 +2703,7 @@
 {
     id: 68,
     title: "Protein-Gemüse-Muffins",
+    image: "images/Protein-Gemüse-Muffins.jpg",
     protein: 42,
     fat: 7,
     calories: 470,
@@ -2661,6 +2732,7 @@
 {
     id: 69,
     title: "Rindfleisch-Brokkoli-Wok",
+    image: "images/Rindfleisch-Brokkoli-Wok.jpg",
     protein: 47,
     fat: 9,
     calories: 530,
@@ -2689,6 +2761,7 @@
 {
     id: 70,
     title: "Protein-Schoko-Mousse",
+    image: "images/Protein-Schoko-Mousse.jpg",
     protein: 42,
     fat: 6,
     calories: 450,
@@ -2716,6 +2789,7 @@
 {
     id: 71,
     title: "Hähnchen-Erdnuss-Satay",
+    image: "images/Hähnchen-Erdnuss-Satay.jpg",
     protein: 47,
     fat: 10,
     calories: 540,
@@ -2744,6 +2818,7 @@
 {
     id: 72,
     title: "Forellen-Mandel-Salat",
+    image: "images/Forellen-Mandel-Salat.jpg",
     protein: 45,
     fat: 10,
     calories: 520,
@@ -2772,6 +2847,7 @@
 {
     id: 73,
     title: "Protein-Frühstücks-Burrito",
+    image: "images/Protein-Frühstücks-Burrito.jpg",
     protein: 43,
     fat: 8,
     calories: 500,
@@ -2800,6 +2876,7 @@
 {
     id: 74,
     title: "Zanderfilet mit Linsen-Dal",
+    image: "images/Zanderfilet mit Linsen-Dal.jpg",
     protein: 47,
     fat: 7,
     calories: 510,
@@ -2828,6 +2905,7 @@
 {
     id: 75,
     title: "Hähnchen-Spinat-Cannelloni",
+    image: "images/Hähnchen-Spinat-Cannelloni.jpg",
     protein: 46,
     fat: 8,
     calories: 530,
@@ -2856,6 +2934,7 @@
 {
     id: 76,
     title: "Proteinreicher Linseneintopf",
+    image: "images/Proteinreicher Linseneintopf.jpg",
     protein: 45,
     fat: 6,
     calories: 490,
@@ -2884,6 +2963,7 @@
 {
     id: 77,
     title: "Garnelen-Quinoa-Risotto",
+    image: "images/Garnelen-Quinoa-Risotto.jpg",
     protein: 43,
     fat: 8,
     calories: 500,
@@ -2912,6 +2992,7 @@
 {
     id: 78,
     title: "Hähnchen-Gemüse-Tajine",
+    image: "images/Hähnchen-Gemüse-Tajine.jpg",
     protein: 47,
     fat: 7,
     calories: 520,
@@ -2940,6 +3021,7 @@
 {
     id: 79,
     title: "Protein-Bananen-Brot",
+    image: "images/Protein-Bananen-Brot.jpg",
     protein: 42,
     fat: 8,
     calories: 480,
@@ -2968,6 +3050,7 @@
 {
     id: 80,
     title: "Seelachs-Spinat-Gratin",
+    image: "images/Seelachs-Spinat-Gratin.jpg",
     protein: 46,
     fat: 9,
     calories: 520,
@@ -2996,6 +3079,7 @@
 {
     id: 81,
     title: "Protein-Wrap mit Pulled Chicken",
+    image: "images/Protein-Wrap mit Pulled Chicken.jpg",
     protein: 48,
     fat: 9,
     calories: 530,
@@ -3024,6 +3108,7 @@
 {
     id: 82,
     title: "Tofu-Scramble mit Gemüse",
+    image: "images/Tofu-Scramble mit Gemüse.jpg",
     protein: 41,
     fat: 9,
     calories: 470,
@@ -3052,6 +3137,7 @@
 {
     id: 83,
     title: "Protein-Falafel mit Joghurt-Dip",
+    image: "images/Protein-Falafel mit Joghurt-Dip.jpg",
     protein: 44,
     fat: 8,
     calories: 500,
@@ -3080,6 +3166,7 @@
 {
     id: 84,
     title: "Lachs-Avocado-Sushi-Bowl",
+    image: "images/Lachs-Avocado-Sushi-Bowl.jpg",
     protein: 46,
     fat: 10,
     calories: 540,
@@ -3108,6 +3195,7 @@
 {
     id: 85,
     title: "Hähnchen-Zucchini-Auflauf",
+    image: "images/Hähnchen-Zucchini-Auflauf.jpg",
     protein: 45,
     fat: 7,
     calories: 490,
@@ -3136,6 +3224,7 @@
 {
     id: 86,
     title: "Protein-Eis am Stiel",
+    image: "images/Protein-Eis am Stiel.jpg",
     protein: 40,
     fat: 5,
     calories: 420,
@@ -3163,6 +3252,7 @@
 {
     id: 87,
     title: "Putenbrust-Pilz-Pfanne",
+    image: "images/Putenbrust-Pilz-Pfanne.jpg",
     protein: 49,
     fat: 8,
     calories: 520,
@@ -3191,6 +3281,7 @@
 {
     id: 88,
     title: "Protein-Nudelsalat",
+    image: "images/Protein-Nudelsalat.jpg",
     protein: 43,
     fat: 9,
     calories: 510,
@@ -3219,6 +3310,7 @@
 {
     id: 89,
     title: "Lachsfilet mit Brokkoli-Püree",
+    image: "images/Lachsfilet mit Brokkoli-Püree.jpg",
     protein: 48,
     fat: 9,
     calories: 530,
@@ -3247,6 +3339,7 @@
 {
     id: 90,
     title: "Protein-Pancake-Turm",
+    image: "images/Protein-Pancake-Turm.jpg",
     protein: 44,
     fat: 8,
     calories: 500,
@@ -3275,6 +3368,7 @@
 {
     id: 91,
     title: "Thunfisch-Bohnen-Salat",
+    image: "images/Thunfisch-Bohnen-Salat.jpg",
     protein: 46,
     fat: 8,
     calories: 480,
@@ -3303,6 +3397,7 @@
 {
     id: 92,
     title: "Hähnchen-Paprika-Spieße",
+    image: "images/Hähnchen-Paprika-Spieße.jpg",
     protein: 47,
     fat: 7,
     calories: 500,
@@ -3331,6 +3426,7 @@
 {
     id: 93,
     title: "Seitan-Curry mit Kokosmilch",
+    image: "images/Seitan-Curry mit Kokosmilch.jpg",
     protein: 45,
     fat: 9,
     calories: 520,
@@ -3359,6 +3455,7 @@
 {
     id: 94,
     title: "Protein-Marmorkuchen",
+    image: "images/Protein-Marmorkuchen.jpg",
     protein: 41,
     fat: 9,
     calories: 490,
@@ -3387,6 +3484,7 @@
 {
     id: 95,
     title: "Kabeljau mit Fenchel-Orangen-Salat",
+    image: "images/Kabeljau mit Fenchel-Orangen-Salat.jpg",
     protein: 45,
     fat: 8,
     calories: 480,
@@ -3415,6 +3513,7 @@
 {
     id: 96,
     title: "Protein-Brotaufstrich",
+    image: "images/Protein-Brotaufstrich.jpg",
     protein: 42,
     fat: 6,
     calories: 450,
@@ -3443,6 +3542,7 @@
 {
     id: 97,
     title: "Hähnchen-Zitronenreis",
+    image: "images/Hähnchen-Zitronenreis.jpg",
     protein: 48,
     fat: 8,
     calories: 530,
@@ -3471,6 +3571,7 @@
 {
     id: 98,
     title: "Protein-Gazpacho mit Garnelen",
+    image: "images/Protein-Gazpacho mit Garnelen.jpg",
     protein: 44,
     fat: 7,
     calories: 460,
@@ -3499,6 +3600,7 @@
 {
     id: 99,
     title: "Putenhack-Zucchini-Boote",
+    image: "images/Putenhack-Zucchini-Boote.jpg",
     protein: 46,
     fat: 8,
     calories: 500,
@@ -3527,6 +3629,7 @@
 {
     id: 100,
     title: "Protein-Tiramisu ohne Zucker",
+    image: "images/Protein-Tiramisu ohne Zucker.jpg",
     protein: 43,
     fat: 9,
     calories: 480,
@@ -3555,6 +3658,7 @@
 {
     id: 101,
     title: "Hähnchen-Kokos-Suppe",
+    image: "images/Hähnchen-Kokos-Suppe.jpg",
     protein: 47,
     fat: 9,
     calories: 520,
@@ -3583,6 +3687,7 @@
 {
     id: 102,
     title: "Protein-Wraps mit Thunfisch",
+    image: "images/Protein-Wraps mit Thunfisch.jpg",
     protein: 49,
     fat: 8,
     calories: 510,
@@ -3611,6 +3716,7 @@
 {
     id: 103,
     title: "Lachstatar mit Avocado",
+    image: "images/Lachstatar mit Avocado.jpg",
     protein: 45,
     fat: 10,
     calories: 520,
@@ -3639,6 +3745,7 @@
 {
     id: 104,
     title: "Protein-Bratling aus Linsen",
+    image: "images/Protein-Bratling aus Linsen.jpg",
     protein: 42,
     fat: 8,
     calories: 480,
@@ -3667,6 +3774,7 @@
 {
     id: 105,
     title: "Hähnchen-Mango-Salat",
+    image: "images/Hähnchen-Mango-Salat.jpg",
     protein: 46,
     fat: 9,
     calories: 510,
@@ -4061,9 +4169,17 @@
 
             return (
                 <div className="recipe-card">
-                    <div className="recipe-image">
+                <div className="recipe-image">
+                    {recipe.image ? (
+                        <img 
+                            src={recipe.image} 
+                            alt={recipe.title} 
+                            style={{width: '100%', height: '100%', objectFit: 'cover'}} 
+                        />
+                    ) : (
                         <i className="fas fa-utensils"></i>
-                    </div>
+                    )}
+                </div>
                     <div className="recipe-actions">
                         <button 
                             className={`action-btn favorite ${isFavorite ? 'active' : ''}`}
