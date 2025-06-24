@@ -755,6 +755,77 @@
                 background: white;
                 color: black;
             }
+
+            /* Einkaufsliste Druck-Styles */
+            .shopping-list-print {
+                display: block !important;
+                width: 100%;
+                max-width: 800px;
+                margin: 0 auto;
+                padding: 20px;
+                font-family: Arial, sans-serif;
+            }
+            
+            .shopping-list-print h1 {
+                text-align: center;
+                color: #2ecc71;
+                margin-bottom: 10px;
+                font-size: 28px;
+            }
+            
+            .shopping-list-print .print-date {
+                text-align: center;
+                color: #666;
+                margin-bottom: 30px;
+                font-size: 14px;
+            }
+            
+            .shopping-list-print .print-categories {
+                margin-bottom: 30px;
+            }
+            
+            .shopping-list-print .print-category {
+                margin-bottom: 25px;
+                page-break-inside: avoid;
+            }
+            
+            .shopping-list-print .print-category h3 {
+                color: #2ecc71;
+                border-bottom: 2px solid #2ecc71;
+                padding-bottom: 5px;
+                margin-bottom: 10px;
+                font-size: 18px;
+            }
+            
+            .shopping-list-print .print-item {
+                display: flex;
+                align-items: center;
+                padding: 8px 0;
+                border-bottom: 1px dotted #ddd;
+            }
+            
+            .shopping-list-print .print-checkbox {
+                width: 20px;
+                height: 20px;
+                border: 2px solid #666;
+                margin-right: 15px;
+                flex-shrink: 0;
+            }
+            
+            .shopping-list-print .print-item-text {
+                flex: 1;
+                font-size: 16px;
+                color: #333;
+            }
+            
+            .shopping-list-print .print-footer {
+                margin-top: 40px;
+                padding-top: 20px;
+                border-top: 1px solid #ddd;
+                text-align: center;
+                color: #999;
+                font-size: 12px;
+            }
         }
     </style>
 </head>
@@ -4397,12 +4468,94 @@ const ShoppingList = ({ recipes, mealPlan, manualItems, onUpdateManualItems, onR
         a.click();
     };
 
+    const printList = () => {
+        // Gruppiere Artikel nach Kategorie
+        const categorizedItems = {};
+        const categories = {
+            'Fleisch & Fisch': ['hähnchen', 'pute', 'rind', 'lachs', 'thunfisch', 'garnelen', 'fisch', 'kabeljau', 'forelle'],
+            'Milchprodukte': ['quark', 'joghurt', 'käse', 'milch', 'mozzarella', 'feta', 'ricotta', 'hüttenkäse'],
+            'Gemüse': ['brokkoli', 'paprika', 'zucchini', 'tomate', 'spinat', 'spargel', 'karotte', 'gurke'],
+            'Kohlenhydrate': ['reis', 'quinoa', 'nudeln', 'brot', 'haferflocken', 'couscous'],
+            'Hülsenfrüchte': ['bohnen', 'linsen', 'kichererbsen', 'erbsen'],
+            'Sonstiges': []
+        };
+        
+        // Sortiere Artikel in Kategorien
+        Object.values(shoppingList).forEach(item => {
+            let category = 'Sonstiges';
+            const itemLower = item.item.toLowerCase();
+            
+            for (const [cat, keywords] of Object.entries(categories)) {
+                if (cat !== 'Sonstiges' && keywords.some(keyword => itemLower.includes(keyword))) {
+                    category = cat;
+                    break;
+                }
+            }
+            
+            if (!categorizedItems[category]) {
+                categorizedItems[category] = [];
+            }
+            categorizedItems[category].push(item);
+        });
+        
+        // Erstelle Druckinhalt
+        let categoriesHTML = '';
+        for (const [category, items] of Object.entries(categorizedItems)) {
+            let itemsHTML = '';
+            for (const item of items) {
+                itemsHTML += '<div class="print-item">';
+                itemsHTML += '<div class="print-checkbox"></div>';
+                itemsHTML += '<div class="print-item-text">';
+                itemsHTML += Math.round(item.amount * 10) / 10 + ' ' + item.unit + ' ' + item.item;
+                itemsHTML += '</div></div>';
+            }
+            
+            categoriesHTML += '<div class="print-category">';
+            categoriesHTML += '<h3>' + category + '</h3>';
+            categoriesHTML += itemsHTML;
+            categoriesHTML += '</div>';
+        }
+        
+        const printContent = '<div class="shopping-list-print">' +
+            '<h1>🛒 Einkaufsliste</h1>' +
+            '<div class="print-date">Erstellt am: ' + 
+            new Date().toLocaleDateString('de-DE', { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+            }) + '</div>' +
+            '<div class="print-categories">' + categoriesHTML + '</div>' +
+            '<div class="print-footer">' +
+            '<p>Guten Einkauf! 🌟</p>' +
+            '<p>Erstellt mit dem Protein-Rezept-Manager</p>' +
+            '</div></div>';
+        
+        // Hole die Style-Inhalte
+        const styleContent = document.querySelector('style') ? document.querySelector('style').innerHTML : '';
+        
+        // Öffne Druckfenster
+        const printWindow = window.open('', '_blank');
+        printWindow.document.write(
+            '<html><head><title>Einkaufsliste</title>' +
+            '<style>' + styleContent + '</style>' +
+            '</head><body>' + printContent +
+            '<script>window.onload = function() { window.print(); ' +
+            'window.onafterprint = function() { window.close(); }; };</' + 'script>' +
+            '</body></html>'
+        );
+        printWindow.document.close();
+    };
+
     return (
         <div className="shopping-list">
             <h3>
                 Einkaufsliste
                 <button className="btn btn-primary" onClick={exportList}>
                     <i className="fas fa-download"></i> Export
+                </button>
+                <button className="btn btn-primary" onClick={printList} style={{ marginLeft: '0.5rem' }}>
+                    <i className="fas fa-print"></i> Drucken
                 </button>
             </h3>
             <ul className="shopping-list-items">
