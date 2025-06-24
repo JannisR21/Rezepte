@@ -4111,7 +4111,7 @@
         };
 
         // Rezeptkarten-Komponente erweitert
-        const RecipeCard = ({ recipe, isFavorite, onToggleFavorite, onAddToMealPlan, onPrint, portions = 1 }) => {
+        const RecipeCard = ({ recipe, isFavorite, onToggleFavorite, onAddToMealPlan, onPrint, onAddIngredientToShoppingList, portions = 1 }) => {
             const [expanded, setExpanded] = useState(false);
             const [customPortions, setCustomPortions] = useState(portions);
 
@@ -4244,11 +4244,24 @@
                         </div>
 
                         <h4>Zutaten:</h4>
-                        <ul className="ingredients-list">
-                            {recipe.ingredients.map((ingredient, index) => (
-                                <li key={index}>{adjustQuantity(ingredient)}</li>
-                            ))}
-                        </ul>
+                     <ul className="ingredients-list">
+    {recipe.ingredients.map((ingredient, index) => (
+        <li key={index} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span>{adjustQuantity(ingredient)}</span>
+            <button 
+                className="btn btn-secondary" 
+                style={{ padding: '0.2rem 0.5rem', fontSize: '0.8rem', marginLeft: '0.5rem' }}
+                onClick={(e) => {
+                    e.stopPropagation();
+                    onAddIngredientToShoppingList(adjustQuantity(ingredient));
+                }}
+                title="Zur Einkaufsliste hinzufügen"
+            >
+                <i className="fas fa-cart-plus"></i>
+            </button>
+        </li>
+    ))}
+</ul>
 
                         <div 
                             className={`preparation-bar ${expanded ? 'expanded' : ''}`}
@@ -4329,96 +4342,116 @@
         };
 
         // Shopping List Component
-        const ShoppingList = ({ recipes, mealPlan }) => {
-            const [shoppingList, setShoppingList] = useState({});
+const ShoppingList = ({ recipes, mealPlan, manualItems, onUpdateManualItems, onRemoveManualItem }) => {
+    const [shoppingList, setShoppingList] = useState({});
 
-            useEffect(() => {
-                const list = {};
-                Object.values(mealPlan).forEach(dayPlan => {
-                    Object.values(dayPlan).forEach(recipeId => {
-                        const recipe = recipes.find(r => r.id === recipeId);
-                        if (recipe) {
-                            recipe.ingredients.forEach(ingredient => {
-                                const match = ingredient.match(/^(\d+(?:\.\d+)?)\s*(\w+)\s+(.+)$/);
-                                if (match) {
-                                    const [, amount, unit, item] = match;
-                                    const key = `${item}_${unit}`;
-                                    if (list[key]) {
-                                        list[key].amount += parseFloat(amount);
-                                    } else {
-                                        list[key] = {
-                                            item,
-                                            unit,
-                                            amount: parseFloat(amount)
-                                        };
-                                    }
-                                } else {
-                                    list[ingredient] = { item: ingredient, amount: 1, unit: 'x' };
-                                }
-                            });
+    useEffect(() => {
+        const list = {};
+        
+        // Aus Meal Plan
+        Object.values(mealPlan).forEach(dayPlan => {
+            Object.values(dayPlan).forEach(recipeId => {
+                const recipe = recipes.find(r => r.id === recipeId);
+                if (recipe) {
+                    recipe.ingredients.forEach(ingredient => {
+                        const match = ingredient.match(/^(\d+(?:\.\d+)?)\s*(\w+)\s+(.+)$/);
+                        if (match) {
+                            const [, amount, unit, item] = match;
+                            const key = `${item}_${unit}`;
+                            if (list[key]) {
+                                list[key].amount += parseFloat(amount);
+                            } else {
+                                list[key] = {
+                                    item,
+                                    unit,
+                                    amount: parseFloat(amount),
+                                    source: 'mealplan'
+                                };
+                            }
+                        } else {
+                            list[ingredient] = { item: ingredient, amount: 1, unit: 'x', source: 'mealplan' };
                         }
                     });
-                });
-                setShoppingList(list);
-            }, [mealPlan, recipes]);
+                }
+            });
+        });
+        
+        // Manuelle Einträge hinzufügen
+        manualItems.forEach((item, index) => {
+            const key = `${item.item}_${item.unit}_${index}_manual`;
+            list[key] = { ...item, source: 'manual' };
+        });
+        
+        setShoppingList(list);
+    }, [mealPlan, recipes, manualItems]);
 
-            const exportList = () => {
-                const text = Object.values(shoppingList)
-                    .map(item => `${item.amount} ${item.unit} ${item.item}`)
-                    .join('\n');
-                const blob = new Blob([text], { type: 'text/plain' });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = 'einkaufsliste.txt';
-                a.click();
-            };
+    const exportList = () => {
+        const text = Object.values(shoppingList)
+            .map(item => `${item.amount} ${item.unit} ${item.item}`)
+            .join('\n');
+        const blob = new Blob([text], { type: 'text/plain' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'einkaufsliste.txt';
+        a.click();
+    };
 
-            return (
-                <div className="shopping-list">
-                    <h3>
-                        Einkaufsliste
-                        <button className="btn btn-primary" onClick={exportList}>
-                            <i className="fas fa-download"></i> Export
-                        </button>
-                    </h3>
-                    <ul className="shopping-list-items">
-                        {Object.values(shoppingList).map((item, index) => (
-                            <li key={index}>
-                                <span>{Math.round(item.amount * 10) / 10} {item.unit} {item.item}</span>
-                            </li>
-                        ))}
-                    </ul>
-                </div>
-            );
-        };
+    return (
+        <div className="shopping-list">
+            <h3>
+                Einkaufsliste
+                <button className="btn btn-primary" onClick={exportList}>
+                    <i className="fas fa-download"></i> Export
+                </button>
+            </h3>
+            <ul className="shopping-list-items">
+                {Object.entries(shoppingList).map(([key, item]) => (
+                    <li key={key}>
+                        <span>{Math.round(item.amount * 10) / 10} {item.unit} {item.item}</span>
+                        {item.source === 'manual' && (
+                            <button 
+                                className="btn btn-secondary" 
+                                style={{ padding: '0.2rem 0.5rem', fontSize: '0.8rem' }}
+                                onClick={() => onRemoveManualItem(key)}
+                            >
+                                <i className="fas fa-times"></i>
+                            </button>
+                        )}
+                    </li>
+                ))}
+            </ul>
+        </div>
+    );
+};
 
         // Rezeptliste-Komponente
-        const RecipeList = ({ recipes, favorites, onToggleFavorite, onAddToMealPlan }) => {
-            if (recipes.length === 0) {
-                return (
-                    <div className="no-results">
-                        <i className="fas fa-search"></i>
-                        <h3>Keine Rezepte gefunden</h3>
-                        <p>Versuche es mit anderen Filtern oder Suchbegriffen.</p>
-                    </div>
-                );
-            }
+const RecipeList = ({ recipes, favorites, onToggleFavorite, onAddToMealPlan, onAddIngredientToShoppingList }) => {
+    if (recipes.length === 0) {
+        return (
+            <div className="no-results">
+                <i className="fas fa-search"></i>
+                <h3>Keine Rezepte gefunden</h3>
+                <p>Versuche es mit anderen Filtern oder Suchbegriffen.</p>
+            </div>
+        );
+    }
 
-            return (
-                <div className="recipe-grid">
-                    {recipes.map(recipe => (
-                        <RecipeCard 
-                            key={recipe.id} 
-                            recipe={recipe}
-                            isFavorite={favorites.includes(recipe.id)}
-                            onToggleFavorite={onToggleFavorite}
-                            onAddToMealPlan={onAddToMealPlan}
-                        />
-                    ))}
-                </div>
-            );
-        };
+    return (
+        <div className="recipe-grid">
+            {recipes.map(recipe => (
+                <RecipeCard 
+                    key={recipe.id} 
+                    recipe={recipe}
+                    isFavorite={favorites.includes(recipe.id)}
+                    onToggleFavorite={onToggleFavorite}
+                    onAddToMealPlan={onAddToMealPlan}
+                    onAddIngredientToShoppingList={onAddIngredientToShoppingList}
+                />
+            ))}
+        </div>
+    );
+};
 
         // Haupt-App-Komponente
         const App = () => {
@@ -4435,6 +4468,7 @@
             const [showMealPlanner, setShowMealPlanner] = useState(false);
             const [showShoppingList, setShowShoppingList] = useState(false);
             const [notification, setNotification] = useState(null);
+            const [manualShoppingItems, setManualShoppingItems] = useLocalStorage('manualShoppingItems', []);
 
             // Alle Rezepte (Original + User)
             const allRecipes = [...recipesData, ...userRecipes];
@@ -4524,10 +4558,39 @@
                         : [...prev, recipeId]
                 );
             };
-
             const handleAddToMealPlan = (recipe) => {
-                setNotification(`${recipe.title} zum Wochenplaner hinzugefügt!`);
-            };
+                    setNotification(`${recipe.title} zum Wochenplaner hinzugefügt!`);
+                };
+
+                            const handleAddIngredientToShoppingList = (ingredient) => {
+                    const match = ingredient.match(/^(\d+(?:\.\d+)?)\s*(\w+)\s+(.+)$/);
+                    let newItem;
+                    
+                    if (match) {
+                        const [, amount, unit, item] = match;
+                        newItem = {
+                            item,
+                            unit,
+                            amount: parseFloat(amount)
+                        };
+                    } else {
+                        newItem = { item: ingredient, amount: 1, unit: 'x' };
+                    }
+                    
+                    setManualShoppingItems(prev => [...prev, newItem]);
+                    setNotification(`${ingredient} zur Einkaufsliste hinzugefügt!`);
+                };
+
+                const handleRemoveManualItem = (key) => {
+                    // Der key enthält den Index am Ende nach '_manual'
+                    const parts = key.split('_');
+                    const manualIndex = parts[parts.length - 1];
+                    if (manualIndex === 'manual') {
+                        // Index ist vorher
+                        const actualIndex = parseInt(parts[parts.length - 2]);
+                        setManualShoppingItems(prev => prev.filter((_, i) => i !== actualIndex));
+                    }
+                };
 
             const exportAllRecipes = () => {
                 const dataStr = JSON.stringify(filteredRecipes, null, 2);
@@ -4637,12 +4700,15 @@
                             />
                         )}
 
-                        {showShoppingList && (
-                            <ShoppingList 
-                                recipes={allRecipes}
-                                mealPlan={mealPlan}
-                            />
-                        )}
+                       {showShoppingList && (
+    <ShoppingList 
+        recipes={allRecipes}
+        mealPlan={mealPlan}
+        manualItems={manualShoppingItems}
+        onUpdateManualItems={setManualShoppingItems}
+        onRemoveManualItem={handleRemoveManualItem}
+    />
+)}
 
                         <FilterBar 
                             filters={allTags}
@@ -4661,21 +4727,23 @@
                                 </h2>
                                 <div className="recipe-grid" style={{ gridTemplateColumns: '1fr', maxWidth: '600px', margin: '0 auto' }}>
                                     <RecipeCard 
-                                        recipe={randomRecipe}
-                                        isFavorite={favorites.includes(randomRecipe.id)}
-                                        onToggleFavorite={toggleFavorite}
-                                        onAddToMealPlan={handleAddToMealPlan}
-                                    />
+    recipe={randomRecipe}
+    isFavorite={favorites.includes(randomRecipe.id)}
+    onToggleFavorite={toggleFavorite}
+    onAddToMealPlan={handleAddToMealPlan}
+    onAddIngredientToShoppingList={handleAddIngredientToShoppingList}
+/>
                                 </div>
                             </div>
                         )}
 
-                        <RecipeList 
-                            recipes={filteredRecipes}
-                            favorites={favorites}
-                            onToggleFavorite={toggleFavorite}
-                            onAddToMealPlan={handleAddToMealPlan}
-                        />
+                       <RecipeList 
+    recipes={filteredRecipes}
+    favorites={favorites}
+    onToggleFavorite={toggleFavorite}
+    onAddToMealPlan={handleAddToMealPlan}
+    onAddIngredientToShoppingList={handleAddIngredientToShoppingList}
+/>
                     </div>
 
                     <NewRecipeModal 
