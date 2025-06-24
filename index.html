@@ -16,22 +16,6 @@
             box-sizing: border-box;
         }
 
-        /* Filter bar */
-
-        .filter-toggle-btn {
-            display: none;
-        }
-
-        @media (max-width: 768px) {
-            .filter-toggle-btn {
-                display: flex !important;
-            }
-            
-            .filter-bar h3 {
-                margin-bottom: 0.5rem;
-            }
-        }
-        /* Filter bar ende */
         :root {
             --primary-color: #2ecc71;
             --secondary-color: #3498db;
@@ -180,6 +164,27 @@
             display: flex;
             gap: 0.5rem;
             flex-wrap: wrap;
+            max-height: 150px;
+            overflow-y: auto;
+            padding: 0.5rem 0;
+        }
+
+        .filter-options::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .filter-options::-webkit-scrollbar-track {
+            background: var(--background-color);
+            border-radius: 4px;
+        }
+
+        .filter-options::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 4px;
+        }
+
+        .filter-options::-webkit-scrollbar-thumb:hover {
+            background: var(--text-secondary);
         }
 
         .filter-chip {
@@ -190,6 +195,7 @@
             cursor: pointer;
             transition: var(--transition);
             font-size: 0.85rem;
+            flex-shrink: 0;
         }
 
         .filter-chip:hover {
@@ -247,6 +253,30 @@
             box-shadow: 0 5px 20px rgba(0,0,0,0.15);
         }
 
+        .recipe-image {
+            width: 100%;
+            height: 200px;
+            background: linear-gradient(135deg, #f0f0f0, #e0e0e0);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #999;
+            font-size: 3rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .recipe-image::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="%23f8f9fa"/><circle cx="30" cy="30" r="8" fill="%23dee2e6"/><polygon points="20,70 50,40 80,70" fill="%23adb5bd"/></svg>') center/cover;
+            opacity: 0.3;
+        }
+
         .recipe-actions {
             position: absolute;
             top: 10px;
@@ -267,6 +297,7 @@
             align-items: center;
             justify-content: center;
             transition: var(--transition);
+            color: var(--text-color);
         }
 
         .action-btn:hover {
@@ -287,7 +318,6 @@
             color: white;
             padding: 1.5rem;
             position: relative;
-            cursor: pointer;
         }
 
         .recipe-header h3 {
@@ -301,6 +331,7 @@
             gap: 1rem;
             font-size: 0.9rem;
             opacity: 0.9;
+            flex-wrap: wrap;
         }
 
         .recipe-body {
@@ -311,6 +342,33 @@
             color: var(--text-secondary);
             margin-bottom: 1rem;
             font-size: 0.95rem;
+        }
+
+        .preparation-bar {
+            background: var(--primary-color);
+            color: white;
+            padding: 0.75rem 1rem;
+            margin: 1rem 0;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: var(--transition);
+            font-weight: 500;
+        }
+
+        .preparation-bar:hover {
+            background: #27ae60;
+            transform: translateY(-2px);
+        }
+
+        .preparation-bar i {
+            transition: transform 0.3s ease;
+        }
+
+        .preparation-bar.expanded i {
+            transform: rotate(180deg);
         }
 
         .ingredients-list {
@@ -336,6 +394,13 @@
             margin-top: 1rem;
             padding-top: 1rem;
             border-top: 1px solid var(--border-color);
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+        .recipe-instructions.expanded {
+            max-height: 1000px;
         }
 
         .recipe-instructions h4 {
@@ -385,6 +450,8 @@
             border-radius: 5px;
             text-align: center;
             font-size: 1rem;
+            background: var(--card-background);
+            color: var(--text-color);
         }
 
         .modal {
@@ -601,10 +668,6 @@
                 grid-template-columns: 1fr;
             }
             
-            .filter-options {
-                flex-direction: column;
-            }
-            
             .header-controls {
                 position: static;
                 margin-top: 1rem;
@@ -613,6 +676,15 @@
             
             .week-grid {
                 grid-template-columns: 1fr;
+            }
+
+            .recipe-stats {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+
+            .filter-options {
+                max-height: 120px;
             }
         }
 
@@ -689,12 +761,12 @@
     <script type="text/babel">
         const { useState, useEffect, useMemo, useCallback } = React;
 
-        // Rezepte-Daten (gleich wie vorher, nur gekürzt für Übersichtlichkeit)
+        // Rezepte-Daten
         const recipesData = [
             {
                 id: 1,
                 title: "Hähnchenbrust mit Brokkoli und Quinoa",
-                protein: 145,
+                protein: 45,
                 fat: 8,
                 calories: 520,
                 description: "Ein klassisches Fitness-Gericht mit perfekter Makronährstoff-Verteilung",
@@ -721,7 +793,7 @@
             {
                 id: 2,
                 title: "Thunfisch-Eiweiß-Wrap",
-                protein: 128,
+                protein: 48,
                 fat: 7,
                 calories: 480,
                 description: "Schneller High-Protein Wrap für unterwegs",
@@ -748,7 +820,7 @@
             {
                 id: 3,
                 title: "Magerquark-Protein-Bowl",
-                protein: 135,
+                protein: 50,
                 fat: 6,
                 calories: 450,
                 description: "Cremige Protein-Bowl mit Beeren und Nüssen",
@@ -775,7 +847,7 @@
             {
                 id: 4,
                 title: "Putenbrust mit Süßkartoffel",
-                protein: 142,
+                protein: 47,
                 fat: 9,
                 calories: 550,
                 description: "Saftiges Putengericht mit komplexen Kohlenhydraten",
@@ -802,7 +874,7 @@
             {
                 id: 5,
                 title: "Lachs mit Spargel und Reis",
-                protein: 125,
+                protein: 42,
                 fat: 10,
                 calories: 580,
                 description: "Omega-3 reiches Gericht mit grünem Spargel",
@@ -827,284 +899,284 @@
                 difficulty: "Mittel"
             },
             {
-    id: 6,
-    title: "Kabeljau mit Linsen und Spinat",
-    protein: 138,
-    fat: 7,
-    calories: 510,
-    description: "Weißfisch auf einem Bett aus proteinreichen Linsen",
-    ingredients: [
-        "300g Kabeljaufilet",
-        "150g rote Linsen",
-        "200g Blattspinat",
-        "1 TL Rapsöl",
-        "Zwiebel, Knoblauch, Kreuzkümmel"
-    ],
-    instructions: [
-        "Linsen nach Packungsanleitung kochen (ca. 20 Minuten)",
-        "Zwiebel und Knoblauch in Rapsöl andünsten",
-        "Spinat hinzufügen und zusammenfallen lassen",
-        "Kabeljau mit Salz und Pfeffer würzen",
-        "Fisch in einer beschichteten Pfanne 4-5 Minuten pro Seite braten",
-        "Linsen mit Spinat mischen und mit Kreuzkümmel würzen",
-        "Kabeljau auf dem Linsen-Spinat-Bett servieren"
-    ],
-    tags: ["Fisch", "Linsen", "Glutenfrei"],
-    prepTime: 30,
-    difficulty: "Mittel"
-},
-{
-    id: 7,
-    title: "Protein-Pancakes mit Beerenkompott",
-    protein: 125,
-    fat: 8,
-    calories: 480,
-    description: "Fluffige Eiweißpfannkuchen zum Frühstück oder als Snack",
-    ingredients: [
-        "200g Magerquark",
-        "4 Eier",
-        "50g Haferflocken",
-        "30g Whey Protein (Vanille)",
-        "200g gemischte Beeren",
-        "1 TL Kokosöl"
-    ],
-    instructions: [
-        "Eier trennen und Eiweiß steif schlagen",
-        "Eigelb mit Quark, Haferflocken und Proteinpulver verrühren",
-        "Eischnee vorsichtig unterheben",
-        "Beeren mit wenig Wasser aufkochen und 5 Minuten köcheln",
-        "Kokosöl in einer Pfanne erhitzen",
-        "Kleine Pancakes ausbacken (je 2-3 Minuten pro Seite)",
-        "Mit warmem Beerenkompott servieren"
-    ],
-    tags: ["Vegetarisch", "Frühstück", "Süß"],
-    prepTime: 20,
-    difficulty: "Einfach"
-},
-{
-    id: 8,
-    title: "Rinderfilet mit Champignons",
-    protein: 145,
-    fat: 9,
-    calories: 540,
-    description: "Mageres Rinderfilet mit proteinreichen Champignons",
-    ingredients: [
-        "250g Rinderfilet",
-        "400g Champignons",
-        "100g Wildreis",
-        "1 TL Olivenöl",
-        "Thymian, Rosmarin, Salz, Pfeffer"
-    ],
-    instructions: [
-        "Wildreis nach Packungsanleitung kochen",
-        "Rinderfilet in Medaillons schneiden und würzen",
-        "Champignons putzen und vierteln",
-        "Fleisch in heißem Olivenöl 3-4 Minuten pro Seite braten",
-        "Fleisch aus der Pfanne nehmen und ruhen lassen",
-        "Champignons in derselben Pfanne 5-7 Minuten braten",
-        "Mit Kräutern würzen und mit Reis servieren"
-    ],
-    tags: ["Rind", "Low-Carb", "Glutenfrei"],
-    prepTime: 30,
-    difficulty: "Mittel"
-},
-{
-    id: 9,
-    title: "Garnelen-Zucchini-Nudeln",
-    protein: 130,
-    fat: 6,
-    calories: 420,
-    description: "Low-Carb Nudelalternative mit viel Protein",
-    ingredients: [
-        "400g Garnelen (geschält)",
-        "3 große Zucchini",
-        "100g Hüttenkäse",
-        "1 TL Olivenöl",
-        "Basilikum, Knoblauch, Chili"
-    ],
-    instructions: [
-        "Zucchini mit einem Spiralschneider zu Nudeln verarbeiten",
-        "Garnelen waschen und trocken tupfen",
-        "Knoblauch und Chili in Olivenöl anbraten",
-        "Garnelen hinzufügen und 3-4 Minuten braten",
-        "Zucchininudeln dazugeben und 2-3 Minuten mitbraten",
-        "Hüttenkäse unterrühren",
-        "Mit frischem Basilikum garnieren"
-    ],
-    tags: ["Meeresfrüchte", "Low-Carb", "Glutenfrei"],
-    prepTime: 15,
-    difficulty: "Einfach"
-},
-{
-    id: 10,
-    title: "Eiweißbrot-Sandwich mit Putenbrust",
-    protein: 135,
-    fat: 7,
-    calories: 490,
-    description: "Proteinreiches Sandwich für unterwegs",
-    ingredients: [
-        "3 Scheiben Eiweißbrot",
-        "200g Putenbrust (Aufschnitt)",
-        "150g körniger Frischkäse",
-        "Salat, Tomaten, Gurken",
-        "Senf, Kräuter"
-    ],
-    instructions: [
-        "Eiweißbrot toasten",
-        "Körnigen Frischkäse mit Kräutern mischen",
-        "Brot mit Frischkäse bestreichen",
-        "Salat waschen und trocken schleudern",
-        "Gemüse in Scheiben schneiden",
-        "Sandwich mit Putenbrust, Salat und Gemüse belegen",
-        "Mit Senf verfeinern und diagonal halbieren"
-    ],
-    tags: ["Pute", "Sandwich", "Schnell"],
-    prepTime: 10,
-    difficulty: "Einfach"
-},
-{
-    id: 11,
-    title: "Seelachs mit Erbsenpüree",
-    protein: 140,
-    fat: 8,
-    calories: 520,
-    description: "Fischfilet auf cremigem, proteinreichem Erbsenpüree",
-    ingredients: [
-        "300g Seelachsfilet",
-        "300g Erbsen (TK)",
-        "100g Magerquark",
-        "1 TL Butter",
-        "Minze, Zitrone, Salz"
-    ],
-    instructions: [
-        "Erbsen in Salzwasser 5 Minuten kochen",
-        "Abgießen und mit Quark pürieren",
-        "Mit Salz und Minze abschmecken",
-        "Seelachs mit Zitrone und Salz würzen",
-        "In einer Pfanne mit Butter 4-5 Minuten pro Seite braten",
-        "Erbsenpüree anrichten und Fisch darauf setzen",
-        "Mit Zitronenspalten servieren"
-    ],
-    tags: ["Fisch", "Erbsen", "Glutenfrei"],
-    prepTime: 25,
-    difficulty: "Einfach"
-},
-{
-    id: 12,
-    title: "Protein-Chili sin Carne",
-    protein: 128,
-    fat: 9,
-    calories: 530,
-    description: "Vegetarisches Chili mit extra viel Eiweiß",
-    ingredients: [
-        "400g Kidneybohnen",
-        "200g Soja-Schnetzel",
-        "200g Mais",
-        "400g stückige Tomaten",
-        "1 TL Olivenöl",
-        "Zwiebel, Knoblauch, Chili, Kreuzkümmel"
-    ],
-    instructions: [
-        "Soja-Schnetzel in heißem Wasser einweichen",
-        "Zwiebel und Knoblauch in Olivenöl anbraten",
-        "Ausgedrückte Soja-Schnetzel hinzufügen und anbraten",
-        "Gewürze dazugeben und kurz mitrösten",
-        "Tomaten, Bohnen und Mais hinzufügen",
-        "20 Minuten köcheln lassen",
-        "Mit Salz und Pfeffer abschmecken"
-    ],
-    tags: ["Vegetarisch", "Bohnen", "Scharf"],
-    prepTime: 35,
-    difficulty: "Einfach"
-},
-{
-    id: 13,
-    title: "Hähnchen-Gemüse-Spieße",
-    protein: 138,
-    fat: 7,
-    calories: 480,
-    description: "Bunte Grillspieße mit magerem Hähnchen",
-    ingredients: [
-        "300g Hähnchenbrust",
-        "1 Paprika",
-        "1 Zucchini",
-        "200g Champignons",
-        "100g Basmatireis",
-        "1 TL Olivenöl",
-        "Curry, Paprika, Knoblauch"
-    ],
-    instructions: [
-        "Reis nach Packungsanleitung kochen",
-        "Hähnchen in Würfel schneiden und mit Gewürzen marinieren",
-        "Gemüse in gleich große Stücke schneiden",
-        "Abwechselnd auf Spieße stecken",
-        "Mit Olivenöl bepinseln",
-        "In einer Grillpfanne 10-12 Minuten grillen, dabei wenden",
-        "Mit Reis servieren"
-    ],
-    tags: ["Hähnchen", "Grillen", "Bunt"],
-    prepTime: 30,
-    difficulty: "Einfach"
-},
-{
-    id: 14,
-    title: "Forelle mit Mandeln und Brokkoli",
-    protein: 142,
-    fat: 10,
-    calories: 540,
-    description: "Ganze Forelle mit knackigem Gemüse",
-    ingredients: [
-        "1 ganze Forelle (300g)",
-        "300g Brokkoli",
-        "20g Mandelblättchen",
-        "1 TL Butter",
-        "Zitrone, Petersilie"
-    ],
-    instructions: [
-        "Forelle ausnehmen, waschen und trocken tupfen",
-        "Innen und außen salzen",
-        "Brokkoli in Röschen teilen und 5 Minuten dämpfen",
-        "Forelle in einer Pfanne mit Butter 5-6 Minuten pro Seite braten",
-        "Mandeln ohne Fett rösten",
-        "Forelle mit gerösteten Mandeln bestreuen",
-        "Mit Brokkoli und Zitrone servieren"
-    ],
-    tags: ["Fisch", "Mandeln", "Glutenfrei"],
-    prepTime: 25,
-    difficulty: "Mittel"
-},
-{
-    id: 15,
-    title: "Protein-Shakshuka",
-    protein: 126,
-    fat: 8,
-    calories: 470,
-    description: "Orientalisches Eiergericht mit extra Protein",
-    ingredients: [
-        "6 Eier",
-        "100g Hüttenkäse",
-        "400g Tomaten (Dose)",
-        "1 Paprika",
-        "1 TL Olivenöl",
-        "Kreuzkümmel, Paprika, Harissa"
-    ],
-    instructions: [
-        "Paprika würfeln und in Olivenöl anbraten",
-        "Tomaten und Gewürze hinzufügen",
-        "10 Minuten köcheln lassen",
-        "Mulden in die Sauce drücken",
-        "Eier hineinschlagen",
-        "Hüttenkäse in Klecksen verteilen",
-        "Bei geschlossenem Deckel 8-10 Minuten garen"
-    ],
-    tags: ["Vegetarisch", "Eier", "Orientalisch"],
-    prepTime: 25,
-    difficulty: "Einfach"
-},
-{
+                id: 6,
+                title: "Kabeljau mit Linsen und Spinat",
+                protein: 46,
+                fat: 7,
+                calories: 510,
+                description: "Weißfisch auf einem Bett aus proteinreichen Linsen",
+                ingredients: [
+                    "300g Kabeljaufilet",
+                    "150g rote Linsen",
+                    "200g Blattspinat",
+                    "1 TL Rapsöl",
+                    "Zwiebel, Knoblauch, Kreuzkümmel"
+                ],
+                instructions: [
+                    "Linsen nach Packungsanleitung kochen (ca. 20 Minuten)",
+                    "Zwiebel und Knoblauch in Rapsöl andünsten",
+                    "Spinat hinzufügen und zusammenfallen lassen",
+                    "Kabeljau mit Salz und Pfeffer würzen",
+                    "Fisch in einer beschichteten Pfanne 4-5 Minuten pro Seite braten",
+                    "Linsen mit Spinat mischen und mit Kreuzkümmel würzen",
+                    "Kabeljau auf dem Linsen-Spinat-Bett servieren"
+                ],
+                tags: ["Fisch", "Linsen", "Glutenfrei"],
+                prepTime: 30,
+                difficulty: "Mittel"
+            },
+            {
+                id: 7,
+                title: "Protein-Pancakes mit Beerenkompott",
+                protein: 45,
+                fat: 8,
+                calories: 480,
+                description: "Fluffige Eiweißpfannkuchen zum Frühstück oder als Snack",
+                ingredients: [
+                    "200g Magerquark",
+                    "4 Eier",
+                    "50g Haferflocken",
+                    "30g Whey Protein (Vanille)",
+                    "200g gemischte Beeren",
+                    "1 TL Kokosöl"
+                ],
+                instructions: [
+                    "Eier trennen und Eiweiß steif schlagen",
+                    "Eigelb mit Quark, Haferflocken und Proteinpulver verrühren",
+                    "Eischnee vorsichtig unterheben",
+                    "Beeren mit wenig Wasser aufkochen und 5 Minuten köcheln",
+                    "Kokosöl in einer Pfanne erhitzen",
+                    "Kleine Pancakes ausbacken (je 2-3 Minuten pro Seite)",
+                    "Mit warmem Beerenkompott servieren"
+                ],
+                tags: ["Vegetarisch", "Frühstück", "Süß"],
+                prepTime: 20,
+                difficulty: "Einfach"
+            },
+            {
+                id: 8,
+                title: "Rinderfilet mit Champignons",
+                protein: 48,
+                fat: 9,
+                calories: 540,
+                description: "Mageres Rinderfilet mit proteinreichen Champignons",
+                ingredients: [
+                    "250g Rinderfilet",
+                    "400g Champignons",
+                    "100g Wildreis",
+                    "1 TL Olivenöl",
+                    "Thymian, Rosmarin, Salz, Pfeffer"
+                ],
+                instructions: [
+                    "Wildreis nach Packungsanleitung kochen",
+                    "Rinderfilet in Medaillons schneiden und würzen",
+                    "Champignons putzen und vierteln",
+                    "Fleisch in heißem Olivenöl 3-4 Minuten pro Seite braten",
+                    "Fleisch aus der Pfanne nehmen und ruhen lassen",
+                    "Champignons in derselben Pfanne 5-7 Minuten braten",
+                    "Mit Kräutern würzen und mit Reis servieren"
+                ],
+                tags: ["Rind", "Low-Carb", "Glutenfrei"],
+                prepTime: 30,
+                difficulty: "Mittel"
+            },
+            {
+                id: 9,
+                title: "Garnelen-Zucchini-Nudeln",
+                protein: 43,
+                fat: 6,
+                calories: 420,
+                description: "Low-Carb Nudelalternative mit viel Protein",
+                ingredients: [
+                    "400g Garnelen (geschält)",
+                    "3 große Zucchini",
+                    "100g Hüttenkäse",
+                    "1 TL Olivenöl",
+                    "Basilikum, Knoblauch, Chili"
+                ],
+                instructions: [
+                    "Zucchini mit einem Spiralschneider zu Nudeln verarbeiten",
+                    "Garnelen waschen und trocken tupfen",
+                    "Knoblauch und Chili in Olivenöl anbraten",
+                    "Garnelen hinzufügen und 3-4 Minuten braten",
+                    "Zucchininudeln dazugeben und 2-3 Minuten mitbraten",
+                    "Hüttenkäse unterrühren",
+                    "Mit frischem Basilikum garnieren"
+                ],
+                tags: ["Meeresfrüchte", "Low-Carb", "Glutenfrei"],
+                prepTime: 15,
+                difficulty: "Einfach"
+            },
+            {
+                id: 10,
+                title: "Eiweißbrot-Sandwich mit Putenbrust",
+                protein: 45,
+                fat: 7,
+                calories: 490,
+                description: "Proteinreiches Sandwich für unterwegs",
+                ingredients: [
+                    "3 Scheiben Eiweißbrot",
+                    "200g Putenbrust (Aufschnitt)",
+                    "150g körniger Frischkäse",
+                    "Salat, Tomaten, Gurken",
+                    "Senf, Kräuter"
+                ],
+                instructions: [
+                    "Eiweißbrot toasten",
+                    "Körnigen Frischkäse mit Kräutern mischen",
+                    "Brot mit Frischkäse bestreichen",
+                    "Salat waschen und trocken schleudern",
+                    "Gemüse in Scheiben schneiden",
+                    "Sandwich mit Putenbrust, Salat und Gemüse belegen",
+                    "Mit Senf verfeinern und diagonal halbieren"
+                ],
+                tags: ["Pute", "Sandwich", "Schnell"],
+                prepTime: 10,
+                difficulty: "Einfach"
+            },
+            {
+                id: 11,
+                title: "Seelachs mit Erbsenpüree",
+                protein: 47,
+                fat: 8,
+                calories: 520,
+                description: "Fischfilet auf cremigem, proteinreichem Erbsenpüree",
+                ingredients: [
+                    "300g Seelachsfilet",
+                    "300g Erbsen (TK)",
+                    "100g Magerquark",
+                    "1 TL Butter",
+                    "Minze, Zitrone, Salz"
+                ],
+                instructions: [
+                    "Erbsen in Salzwasser 5 Minuten kochen",
+                    "Abgießen und mit Quark pürieren",
+                    "Mit Salz und Minze abschmecken",
+                    "Seelachs mit Zitrone und Salz würzen",
+                    "In einer Pfanne mit Butter 4-5 Minuten pro Seite braten",
+                    "Erbsenpüree anrichten und Fisch darauf setzen",
+                    "Mit Zitronenspalten servieren"
+                ],
+                tags: ["Fisch", "Erbsen", "Glutenfrei"],
+                prepTime: 25,
+                difficulty: "Einfach"
+            },
+            {
+                id: 12,
+                title: "Protein-Chili sin Carne",
+                protein: 45,
+                fat: 9,
+                calories: 530,
+                description: "Vegetarisches Chili mit extra viel Eiweiß",
+                ingredients: [
+                    "400g Kidneybohnen",
+                    "200g Soja-Schnetzel",
+                    "200g Mais",
+                    "400g stückige Tomaten",
+                    "1 TL Olivenöl",
+                    "Zwiebel, Knoblauch, Chili, Kreuzkümmel"
+                ],
+                instructions: [
+                    "Soja-Schnetzel in heißem Wasser einweichen",
+                    "Zwiebel und Knoblauch in Olivenöl anbraten",
+                    "Ausgedrückte Soja-Schnetzel hinzufügen und anbraten",
+                    "Gewürze dazugeben und kurz mitrösten",
+                    "Tomaten, Bohnen und Mais hinzufügen",
+                    "20 Minuten köcheln lassen",
+                    "Mit Salz und Pfeffer abschmecken"
+                ],
+                tags: ["Vegetarisch", "Bohnen", "Scharf"],
+                prepTime: 35,
+                difficulty: "Einfach"
+            },
+            {
+                id: 13,
+                title: "Hähnchen-Gemüse-Spieße",
+                protein: 46,
+                fat: 7,
+                calories: 480,
+                description: "Bunte Grillspieße mit magerem Hähnchen",
+                ingredients: [
+                    "300g Hähnchenbrust",
+                    "1 Paprika",
+                    "1 Zucchini",
+                    "200g Champignons",
+                    "100g Basmatireis",
+                    "1 TL Olivenöl",
+                    "Curry, Paprika, Knoblauch"
+                ],
+                instructions: [
+                    "Reis nach Packungsanleitung kochen",
+                    "Hähnchen in Würfel schneiden und mit Gewürzen marinieren",
+                    "Gemüse in gleich große Stücke schneiden",
+                    "Abwechselnd auf Spieße stecken",
+                    "Mit Olivenöl bepinseln",
+                    "In einer Grillpfanne 10-12 Minuten grillen, dabei wenden",
+                    "Mit Reis servieren"
+                ],
+                tags: ["Hähnchen", "Grillen", "Bunt"],
+                prepTime: 30,
+                difficulty: "Einfach"
+            },
+            {
+                id: 14,
+                title: "Forelle mit Mandeln und Brokkoli",
+                protein: 47,
+                fat: 10,
+                calories: 540,
+                description: "Ganze Forelle mit knackigem Gemüse",
+                ingredients: [
+                    "1 ganze Forelle (300g)",
+                    "300g Brokkoli",
+                    "20g Mandelblättchen",
+                    "1 TL Butter",
+                    "Zitrone, Petersilie"
+                ],
+                instructions: [
+                    "Forelle ausnehmen, waschen und trocken tupfen",
+                    "Innen und außen salzen",
+                    "Brokkoli in Röschen teilen und 5 Minuten dämpfen",
+                    "Forelle in einer Pfanne mit Butter 5-6 Minuten pro Seite braten",
+                    "Mandeln ohne Fett rösten",
+                    "Forelle mit gerösteten Mandeln bestreuen",
+                    "Mit Brokkoli und Zitrone servieren"
+                ],
+                tags: ["Fisch", "Mandeln", "Glutenfrei"],
+                prepTime: 25,
+                difficulty: "Mittel"
+            },
+            {
+                id: 15,
+                title: "Protein-Shakshuka",
+                protein: 42,
+                fat: 8,
+                calories: 470,
+                description: "Orientalisches Eiergericht mit extra Protein",
+                ingredients: [
+                    "6 Eier",
+                    "100g Hüttenkäse",
+                    "400g Tomaten (Dose)",
+                    "1 Paprika",
+                    "1 TL Olivenöl",
+                    "Kreuzkümmel, Paprika, Harissa"
+                ],
+                instructions: [
+                    "Paprika würfeln und in Olivenöl anbraten",
+                    "Tomaten und Gewürze hinzufügen",
+                    "10 Minuten köcheln lassen",
+                    "Mulden in die Sauce drücken",
+                    "Eier hineinschlagen",
+                    "Hüttenkäse in Klecksen verteilen",
+                    "Bei geschlossenem Deckel 8-10 Minuten garen"
+                ],
+                tags: ["Vegetarisch", "Eier", "Orientalisch"],
+                prepTime: 25,
+                difficulty: "Einfach"
+            },
+            {
     id: 16,
     title: "Putenschnitzel mit Blumenkohlpüree",
-    protein: 143,
+    protein: 48,
     fat: 6,
     calories: 490,
     description: "Paniertes Schnitzel mit Low-Carb Beilage",
@@ -1132,7 +1204,7 @@
 {
     id: 17,
     title: "Thunfisch-Quinoa-Salat",
-    protein: 132,
+    protein: 44,
     fat: 9,
     calories: 510,
     description: "Frischer Salat mit viel Protein für heiße Tage",
@@ -1160,7 +1232,7 @@
 {
     id: 18,
     title: "Hähnchen-Curry mit Basmatireis",
-    protein: 140,
+    protein: 47,
     fat: 8,
     calories: 550,
     description: "Mildes Curry mit magerem Hähnchenfleisch",
@@ -1188,7 +1260,7 @@
 {
     id: 19,
     title: "Protein-Overnight-Oats",
-    protein: 125,
+    protein: 42,
     fat: 7,
     calories: 460,
     description: "Vorbereitetes Frühstück mit viel Eiweiß",
@@ -1216,7 +1288,7 @@
 {
     id: 20,
     title: "Zanderfilet mit Spargel-Tomaten-Gemüse",
-    protein: 138,
+    protein: 46,
     fat: 7,
     calories: 480,
     description: "Edelfisch mit mediterranem Gemüse",
@@ -1243,14 +1315,14 @@
 },
 {
     id: 21,
-    title: "Rindertatar mit Ei",
-    protein: 145,
-    fat: 10,
+    title: "Rindertatar mit Quark-Dip",
+    protein: 48,
+    fat: 9,
     calories: 520,
-    description: "Klassisches Tatar mit rohem Ei",
+    description: "Klassisches Tatar mit proteinreichem Dip",
     ingredients: [
-        "300g Rindertatar",
-        "2 Eigelb",
+        "250g Rindertatar",
+        "200g Magerquark",
         "1 Schalotte",
         "Kapern, Cornichons",
         "Senf, Worcestersauce",
@@ -1260,10 +1332,10 @@
         "Rindertatar in eine Schüssel geben",
         "Schalotte sehr fein würfeln",
         "Kapern und Cornichons hacken",
-        "Alles mit Senf und Worcestersauce mischen",
-        "Mit Salz und Pfeffer würzen",
+        "Quark mit Senf und Kräutern verrühren",
+        "Tatar mit Gewürzen abschmecken",
         "Auf Tellern anrichten",
-        "Eigelb in einer Mulde servieren"
+        "Mit Quark-Dip und Brot servieren"
     ],
     tags: ["Rind", "Roh", "Klassisch"],
     prepTime: 15,
@@ -1272,7 +1344,7 @@
 {
     id: 22,
     title: "Hähnchen-Gemüse-Auflauf",
-    protein: 135,
+    protein: 45,
     fat: 8,
     calories: 510,
     description: "Bunter Auflauf aus dem Ofen",
@@ -1301,7 +1373,7 @@
 {
     id: 23,
     title: "Proteinreiche Linsensuppe",
-    protein: 130,
+    protein: 43,
     fat: 6,
     calories: 490,
     description: "Herzhafte Suppe mit roten Linsen und Hühnchen",
@@ -1329,7 +1401,7 @@
 {
     id: 24,
     title: "Jakobsmuscheln mit Erbsenpüree",
-    protein: 125,
+    protein: 42,
     fat: 8,
     calories: 470,
     description: "Edle Meeresfrüchte auf grünem Püree",
@@ -1356,7 +1428,7 @@
 {
     id: 25,
     title: "Turkey-Bacon-Wrap",
-    protein: 138,
+    protein: 46,
     fat: 9,
     calories: 520,
     description: "Herzhafter Wrap mit Putenbacon",
@@ -1384,7 +1456,7 @@
 {
     id: 26,
     title: "Proteinreicher Griechischer Salat",
-    protein: 128,
+    protein: 43,
     fat: 10,
     calories: 510,
     description: "Mediterraner Salat mit extra Protein",
@@ -1412,7 +1484,7 @@
 {
     id: 27,
     title: "Seitan-Geschnetzeltes",
-    protein: 140,
+    protein: 47,
     fat: 7,
     calories: 500,
     description: "Vegetarisches Geschnetzeltes mit viel Protein",
@@ -1440,7 +1512,7 @@
 {
     id: 28,
     title: "Protein-Pizza mit Thunfischboden",
-    protein: 135,
+    protein: 45,
     fat: 8,
     calories: 490,
     description: "Low-Carb Pizza mit Thunfisch als Boden",
@@ -1468,7 +1540,7 @@
 {
     id: 29,
     title: "Kabeljau-Spieße mit Gemüse",
-    protein: 130,
+    protein: 43,
     fat: 6,
     calories: 470,
     description: "Gegrillte Fischspieße mit buntem Gemüse",
@@ -1497,7 +1569,7 @@
 {
     id: 30,
     title: "Hähnchen-Bohnen-Bowl",
-    protein: 142,
+    protein: 47,
     fat: 7,
     calories: 520,
     description: "Bunte Bowl mit verschiedenen Bohnen",
@@ -1525,7 +1597,7 @@
 {
     id: 31,
     title: "Putenhackbällchen in Tomatensauce",
-    protein: 138,
+    protein: 46,
     fat: 8,
     calories: 510,
     description: "Saftige Hackbällchen in aromatischer Sauce",
@@ -1554,7 +1626,7 @@
 {
     id: 32,
     title: "Protein-Smoothie-Bowl",
-    protein: 125,
+    protein: 42,
     fat: 7,
     calories: 450,
     description: "Dickflüssiger Smoothie zum Löffeln",
@@ -1581,7 +1653,7 @@
 {
     id: 33,
     title: "Räucherlachs-Omelett",
-    protein: 132,
+    protein: 44,
     fat: 10,
     calories: 480,
     description: "Luxuriöses Omelett mit Räucherlachs",
@@ -1609,7 +1681,7 @@
 {
     id: 34,
     title: "Hähnchen-Süßkartoffel-Curry",
-    protein: 135,
+    protein: 45,
     fat: 9,
     calories: 540,
     description: "Mildes Curry mit Süßkartoffeln",
@@ -1637,7 +1709,7 @@
 {
     id: 35,
     title: "Proteinreiche Gemüselasagne",
-    protein: 128,
+    protein: 43,
     fat: 8,
     calories: 520,
     description: "Lasagne mit Gemüse statt Nudelplatten",
@@ -1665,7 +1737,7 @@
 {
     id: 36,
     title: "Dorsch mit Senfsauce",
-    protein: 140,
+    protein: 47,
     fat: 6,
     calories: 490,
     description: "Weißfisch in cremiger Senfsauce",
@@ -1694,7 +1766,7 @@
 {
     id: 37,
     title: "Protein-Burrito-Bowl",
-    protein: 145,
+    protein: 48,
     fat: 9,
     calories: 550,
     description: "Mexikanische Bowl ohne Tortilla",
@@ -1722,7 +1794,7 @@
 {
     id: 38,
     title: "Garnelen-Brokkoli-Pfanne",
-    protein: 128,
+    protein: 43,
     fat: 7,
     calories: 470,
     description: "Schnelle Asia-Pfanne mit Garnelen",
@@ -1750,7 +1822,7 @@
 {
     id: 39,
     title: "Hähnchen-Spinat-Rolle",
-    protein: 140,
+    protein: 47,
     fat: 8,
     calories: 510,
     description: "Gefüllte Hähnchenroulade mit Spinat",
@@ -1778,7 +1850,7 @@
 {
     id: 40,
     title: "Proteinreiche Minestrone",
-    protein: 126,
+    protein: 42,
     fat: 6,
     calories: 480,
     description: "Italienische Gemüsesuppe mit extra Protein",
@@ -1807,7 +1879,7 @@
 {
     id: 41,
     title: "Tofu-Gemüse-Stir-Fry",
-    protein: 125,
+    protein: 42,
     fat: 9,
     calories: 490,
     description: "Veganes Wok-Gericht mit mariniertem Tofu",
@@ -1835,7 +1907,7 @@
 {
     id: 42,
     title: "Heilbutt mit Kräuterkruste",
-    protein: 142,
+    protein: 47,
     fat: 8,
     calories: 520,
     description: "Edelfisch mit aromatischer Kruste",
@@ -1863,7 +1935,7 @@
 {
     id: 43,
     title: "Protein-Frittata",
-    protein: 130,
+    protein: 43,
     fat: 8,
     calories: 490,
     description: "Italienisches Eiergericht aus dem Ofen",
@@ -1891,7 +1963,7 @@
 {
     id: 44,
     title: "Hähnchen-Avocado-Salat",
-    protein: 135,
+    protein: 45,
     fat: 10,
     calories: 520,
     description: "Frischer Salat mit gegrilltem Hähnchen",
@@ -1919,7 +1991,7 @@
 {
     id: 45,
     title: "Putenschnitzel Hawaii",
-    protein: 140,
+    protein: 47,
     fat: 7,
     calories: 510,
     description: "Schnitzel mit Ananas und Käse überbacken",
@@ -1947,7 +2019,7 @@
 {
     id: 46,
     title: "Protein-Chia-Pudding",
-    protein: 125,
+    protein: 42,
     fat: 8,
     calories: 460,
     description: "Cremiger Pudding mit Chiasamen",
@@ -1974,7 +2046,7 @@
 {
     id: 47,
     title: "Rindergulasch mit Pilzen",
-    protein: 145,
+    protein: 48,
     fat: 9,
     calories: 540,
     description: "Herzhaftes Gulasch mit viel Protein",
@@ -2002,7 +2074,7 @@
 {
     id: 48,
     title: "Lachs-Spinat-Quiche ohne Boden",
-    protein: 138,
+    protein: 46,
     fat: 10,
     calories: 520,
     description: "Low-Carb Quiche mit Lachs",
@@ -2030,7 +2102,7 @@
 {
     id: 49,
     title: "Hähnchen-Kichererbsen-Curry",
-    protein: 140,
+    protein: 47,
     fat: 8,
     calories: 530,
     description: "Proteinreiches Curry mit Kichererbsen",
@@ -2058,7 +2130,7 @@
 {
     id: 50,
     title: "Proteinreiche Burritos",
-    protein: 142,
+    protein: 47,
     fat: 9,
     calories: 540,
     description: "Gefüllte Tortillas mit viel Eiweiß",
@@ -2086,7 +2158,7 @@
 {
     id: 51,
     title: "Seeteufel-Spieße",
-    protein: 135,
+    protein: 45,
     fat: 7,
     calories: 490,
     description: "Gegrillte Fischspieße mit festem Fleisch",
@@ -2114,7 +2186,7 @@
 {
     id: 52,
     title: "Protein-Käsekuchen ohne Boden",
-    protein: 125,
+    protein: 42,
     fat: 6,
     calories: 450,
     description: "Leichter Käsekuchen mit viel Protein",
@@ -2142,7 +2214,7 @@
 {
     id: 53,
     title: "Hähnchen-Gemüse-Couscous",
-    protein: 138,
+    protein: 46,
     fat: 8,
     calories: 520,
     description: "Orientalisches Gericht mit Couscous",
@@ -2170,7 +2242,7 @@
 {
     id: 54,
     title: "Tempeh-Gemüse-Pfanne",
-    protein: 130,
+    protein: 43,
     fat: 9,
     calories: 510,
     description: "Vegane Proteinbombe mit Tempeh",
@@ -2198,7 +2270,7 @@
 {
     id: 55,
     title: "Putenbrust-Involtini",
-    protein: 140,
+    protein: 47,
     fat: 8,
     calories: 520,
     description: "Italienische Putenröllchen",
@@ -2226,7 +2298,7 @@
 {
     id: 56,
     title: "Protein-Sushi-Bowl",
-    protein: 132,
+    protein: 44,
     fat: 7,
     calories: 500,
     description: "Dekostruierte Sushi-Zutaten in einer Bowl",
@@ -2253,7 +2325,7 @@
 {
     id: 57,
     title: "Hähnchen-Feta-Auflauf",
-    protein: 138,
+    protein: 46,
     fat: 9,
     calories: 530,
     description: "Griechisch inspirierter Auflauf",
@@ -2281,7 +2353,7 @@
 {
     id: 58,
     title: "Protein-Poke-Bowl",
-    protein: 135,
+    protein: 45,
     fat: 8,
     calories: 510,
     description: "Hawaiianische Bowl mit rohem Fisch",
@@ -2308,8 +2380,8 @@
 },
 {
     id: 59,
-    title: "Rinderfilet-Carpaccio",
-    protein: 140,
+    title: "Rinderfilet-Carpaccio mit Rucola",
+    protein: 47,
     fat: 10,
     calories: 520,
     description: "Hauchdünnes Rinderfilet roh serviert",
@@ -2337,7 +2409,7 @@
 {
     id: 60,
     title: "Protein-Gemüse-Lasagne",
-    protein: 130,
+    protein: 43,
     fat: 8,
     calories: 510,
     description: "Lasagne mit Linsen statt Hackfleisch",
@@ -2365,7 +2437,7 @@
 {
     id: 61,
     title: "Hähnchen-Teriyaki-Spieße",
-    protein: 138,
+    protein: 46,
     fat: 7,
     calories: 510,
     description: "Japanisch marinierte Hähnchenspieße",
@@ -2393,7 +2465,7 @@
 {
     id: 62,
     title: "Meeresfrüchte-Paella",
-    protein: 135,
+    protein: 45,
     fat: 8,
     calories: 530,
     description: "Spanische Reispfanne mit Meeresfrüchten",
@@ -2421,7 +2493,7 @@
 {
     id: 63,
     title: "Protein-Müsli-Riegel",
-    protein: 125,
+    protein: 42,
     fat: 9,
     calories: 480,
     description: "Selbstgemachte Proteinriegel",
@@ -2449,7 +2521,7 @@
 {
     id: 64,
     title: "Putenhackbällchen Asia-Style",
-    protein: 140,
+    protein: 47,
     fat: 7,
     calories: 510,
     description: "Asiatisch gewürzte Hackbällchen",
@@ -2477,7 +2549,7 @@
 {
     id: 65,
     title: "Linsenpfannkuchen mit Gemüse",
-    protein: 128,
+    protein: 43,
     fat: 8,
     calories: 490,
     description: "Proteinreiche vegane Pfannkuchen",
@@ -2505,7 +2577,7 @@
 {
     id: 66,
     title: "Hähnchen-Quinoa-Burger",
-    protein: 135,
+    protein: 45,
     fat: 8,
     calories: 520,
     description: "Proteinreiche Burger-Alternative",
@@ -2533,7 +2605,7 @@
 {
     id: 67,
     title: "Kabeljau-Kokos-Curry",
-    protein: 132,
+    protein: 44,
     fat: 9,
     calories: 510,
     description: "Milder Fischcurry mit Kokosmilch",
@@ -2561,7 +2633,7 @@
 {
     id: 68,
     title: "Protein-Gemüse-Muffins",
-    protein: 126,
+    protein: 42,
     fat: 7,
     calories: 470,
     description: "Herzhafte Muffins mit viel Protein",
@@ -2589,7 +2661,7 @@
 {
     id: 69,
     title: "Rindfleisch-Brokkoli-Wok",
-    protein: 142,
+    protein: 47,
     fat: 9,
     calories: 530,
     description: "Asiatisches Wokgericht mit Rindfleisch",
@@ -2617,7 +2689,7 @@
 {
     id: 70,
     title: "Protein-Schoko-Mousse",
-    protein: 125,
+    protein: 42,
     fat: 6,
     calories: 450,
     description: "Luftiges Dessert mit viel Eiweiß",
@@ -2644,7 +2716,7 @@
 {
     id: 71,
     title: "Hähnchen-Erdnuss-Satay",
-    protein: 140,
+    protein: 47,
     fat: 10,
     calories: 540,
     description: "Indonesische Spieße mit Erdnusssauce",
@@ -2672,7 +2744,7 @@
 {
     id: 72,
     title: "Forellen-Mandel-Salat",
-    protein: 135,
+    protein: 45,
     fat: 10,
     calories: 520,
     description: "Geräucherte Forelle auf frischem Salat",
@@ -2700,7 +2772,7 @@
 {
     id: 73,
     title: "Protein-Frühstücks-Burrito",
-    protein: 130,
+    protein: 43,
     fat: 8,
     calories: 500,
     description: "Herzhafter Start in den Tag",
@@ -2728,7 +2800,7 @@
 {
     id: 74,
     title: "Zanderfilet mit Linsen-Dal",
-    protein: 140,
+    protein: 47,
     fat: 7,
     calories: 510,
     description: "Fisch auf indischem Linsengericht",
@@ -2756,7 +2828,7 @@
 {
     id: 75,
     title: "Hähnchen-Spinat-Cannelloni",
-    protein: 138,
+    protein: 46,
     fat: 8,
     calories: 530,
     description: "Gefüllte Nudelrollen mit Hähnchen",
@@ -2784,7 +2856,7 @@
 {
     id: 76,
     title: "Proteinreicher Linseneintopf",
-    protein: 135,
+    protein: 45,
     fat: 6,
     calories: 490,
     description: "Deftiger Eintopf mit grünen Linsen",
@@ -2812,7 +2884,7 @@
 {
     id: 77,
     title: "Garnelen-Quinoa-Risotto",
-    protein: 130,
+    protein: 43,
     fat: 8,
     calories: 500,
     description: "Cremiges Risotto mit Quinoa statt Reis",
@@ -2840,7 +2912,7 @@
 {
     id: 78,
     title: "Hähnchen-Gemüse-Tajine",
-    protein: 140,
+    protein: 47,
     fat: 7,
     calories: 520,
     description: "Marokkanisches Schmorgericht",
@@ -2868,7 +2940,7 @@
 {
     id: 79,
     title: "Protein-Bananen-Brot",
-    protein: 125,
+    protein: 42,
     fat: 8,
     calories: 480,
     description: "Saftiges Bananenbrot mit extra Protein",
@@ -2896,7 +2968,7 @@
 {
     id: 80,
     title: "Seelachs-Spinat-Gratin",
-    protein: 138,
+    protein: 46,
     fat: 9,
     calories: 520,
     description: "Überbackener Fisch mit Spinat",
@@ -2920,6 +2992,705 @@
     tags: ["Gratin", "Fisch", "Spinat"],
     prepTime: 40,
     difficulty: "Einfach"
+},
+{
+    id: 81,
+    title: "Protein-Wrap mit Pulled Chicken",
+    protein: 48,
+    fat: 9,
+    calories: 530,
+    description: "Saftiges Hähnchen im Vollkorn-Wrap",
+    ingredients: [
+        "300g Hähnchenbrust",
+        "2 Vollkorn-Tortillas",
+        "150g griechischer Joghurt",
+        "BBQ-Sauce (zuckerfrei)",
+        "Coleslaw, Tomaten",
+        "Salat"
+    ],
+    instructions: [
+        "Hähnchen 2 Stunden in BBQ-Sauce marinieren",
+        "Im Ofen bei 180°C 25 Min garen",
+        "Mit Gabeln zerfasern",
+        "Tortillas erwärmen",
+        "Mit Joghurt bestreichen",
+        "Hähnchen und Gemüse darauf verteilen",
+        "Fest einrollen"
+    ],
+    tags: ["Wrap", "Pulled Chicken", "BBQ"],
+    prepTime: 35,
+    difficulty: "Einfach"
+},
+{
+    id: 82,
+    title: "Tofu-Scramble mit Gemüse",
+    protein: 41,
+    fat: 9,
+    calories: 470,
+    description: "Vegane Alternative zu Rührei",
+    ingredients: [
+        "400g Seidentofu",
+        "200g Champignons",
+        "1 Paprika",
+        "100g Spinat",
+        "1 TL Olivenöl",
+        "Kurkuma, Hefeflocken"
+    ],
+    instructions: [
+        "Tofu mit Gabel zerdrücken",
+        "Champignons und Paprika würfeln",
+        "In Olivenöl anbraten",
+        "Tofu hinzufügen",
+        "Mit Kurkuma würzen",
+        "Spinat unterheben",
+        "Mit Hefeflocken abschmecken"
+    ],
+    tags: ["Vegan", "Tofu", "Frühstück"],
+    prepTime: 15,
+    difficulty: "Einfach"
+},
+{
+    id: 83,
+    title: "Protein-Falafel mit Joghurt-Dip",
+    protein: 44,
+    fat: 8,
+    calories: 500,
+    description: "Gebackene Kichererbsen-Bällchen",
+    ingredients: [
+        "400g Kichererbsen (Dose)",
+        "50g Haferflocken",
+        "200g griechischer Joghurt",
+        "Petersilie, Koriander",
+        "1 TL Olivenöl",
+        "Kreuzkümmel, Knoblauch"
+    ],
+    instructions: [
+        "Kichererbsen abtropfen und pürieren",
+        "Mit Haferflocken und Gewürzen mischen",
+        "Kleine Bällchen formen",
+        "Bei 200°C 20 Min backen",
+        "Joghurt mit Kräutern verrühren",
+        "Als Dip servieren",
+        "Mit Salat garnieren"
+    ],
+    tags: ["Vegetarisch", "Falafel", "Orientalisch"],
+    prepTime: 30,
+    difficulty: "Einfach"
+},
+{
+    id: 84,
+    title: "Lachs-Avocado-Sushi-Bowl",
+    protein: 46,
+    fat: 10,
+    calories: 540,
+    description: "Dekostruiertes Sushi in Bowl-Form",
+    ingredients: [
+        "200g Lachs (Sushi-Qualität)",
+        "150g Sushi-Reis",
+        "1/2 Avocado",
+        "100g Edamame",
+        "Nori-Blätter",
+        "Wasabi, Sojasauce"
+    ],
+    instructions: [
+        "Reis kochen und mit Reisessig würzen",
+        "Lachs in Würfel schneiden",
+        "Avocado in Spalten schneiden",
+        "Edamame kochen",
+        "Alles in einer Bowl anrichten",
+        "Nori-Blätter zerkleinern",
+        "Mit Wasabi und Sojasauce servieren"
+    ],
+    tags: ["Sushi", "Lachs", "Bowl"],
+    prepTime: 25,
+    difficulty: "Einfach"
+},
+{
+    id: 85,
+    title: "Hähnchen-Zucchini-Auflauf",
+    protein: 45,
+    fat: 7,
+    calories: 490,
+    description: "Low-Carb Auflauf mit Hähnchen",
+    ingredients: [
+        "300g Hähnchenbrust",
+        "3 große Zucchini",
+        "200g Hüttenkäse",
+        "3 Eier",
+        "100g Mozzarella (light)",
+        "Basilikum, Oregano"
+    ],
+    instructions: [
+        "Ofen auf 180°C vorheizen",
+        "Zucchini in Scheiben schneiden",
+        "Hähnchen würfeln und anbraten",
+        "In einer Form schichten",
+        "Hüttenkäse mit Eiern verrühren",
+        "Darübergießen und mit Käse toppen",
+        "35 Minuten backen"
+    ],
+    tags: ["Auflauf", "Low-Carb", "Zucchini"],
+    prepTime: 45,
+    difficulty: "Einfach"
+},
+{
+    id: 86,
+    title: "Protein-Eis am Stiel",
+    protein: 40,
+    fat: 5,
+    calories: 420,
+    description: "Selbstgemachtes Protein-Eis",
+    ingredients: [
+        "400g griechischer Joghurt",
+        "40g Whey Protein (Vanille)",
+        "200g Beeren",
+        "2 EL Honig",
+        "200ml Mandelmilch"
+    ],
+    instructions: [
+        "Joghurt mit Proteinpulver verrühren",
+        "Beeren pürieren",
+        "Mit Honig süßen",
+        "Mandelmilch unterrühren",
+        "In Eisformen füllen",
+        "Stiele hineinstecken",
+        "4 Stunden gefrieren lassen"
+    ],
+    tags: ["Eis", "Dessert", "Erfrischend"],
+    prepTime: 15,
+    difficulty: "Einfach"
+},
+{
+    id: 87,
+    title: "Putenbrust-Pilz-Pfanne",
+    protein: 49,
+    fat: 8,
+    calories: 520,
+    description: "Herzhafte Pfanne mit verschiedenen Pilzen",
+    ingredients: [
+        "300g Putenbrust",
+        "400g gemischte Pilze",
+        "100g Vollkornreis",
+        "1 TL Butter",
+        "Thymian, Rosmarin",
+        "Weißwein"
+    ],
+    instructions: [
+        "Reis kochen",
+        "Pute in Streifen schneiden",
+        "Pilze putzen und vierteln",
+        "Pute in Butter anbraten",
+        "Pilze hinzufügen",
+        "Mit Weißwein ablöschen",
+        "Mit Kräutern würzen"
+    ],
+    tags: ["Pute", "Pilze", "Herzhaft"],
+    prepTime: 25,
+    difficulty: "Einfach"
+},
+{
+    id: 88,
+    title: "Protein-Nudelsalat",
+    protein: 43,
+    fat: 9,
+    calories: 510,
+    description: "Eiweißreicher Nudelsalat für Partys",
+    ingredients: [
+        "200g Vollkornnudeln",
+        "300g Hähnchenbrust",
+        "200g Kichererbsen",
+        "150g griechischer Joghurt",
+        "Paprika, Gurken",
+        "Petersilie, Schnittlauch"
+    ],
+    instructions: [
+        "Nudeln kochen und abkühlen lassen",
+        "Hähnchen grillen und würfeln",
+        "Gemüse schneiden",
+        "Kichererbsen abspülen",
+        "Joghurt mit Kräutern verrühren",
+        "Alles mischen",
+        "1 Stunde durchziehen lassen"
+    ],
+    tags: ["Nudelsalat", "Party", "Kalt"],
+    prepTime: 30,
+    difficulty: "Einfach"
+},
+{
+    id: 89,
+    title: "Lachsfilet mit Brokkoli-Püree",
+    protein: 48,
+    fat: 9,
+    calories: 530,
+    description: "Edler Lachs auf grünem Püree",
+    ingredients: [
+        "300g Lachsfilet",
+        "400g Brokkoli",
+        "100g Magerquark",
+        "1 TL Olivenöl",
+        "Zitrone, Dill",
+        "Knoblauch"
+    ],
+    instructions: [
+        "Brokkoli in Salzwasser kochen",
+        "Mit Quark und Knoblauch pürieren",
+        "Lachs mit Salz und Dill würzen",
+        "In Olivenöl 4 Min pro Seite braten",
+        "Püree auf Tellern verteilen",
+        "Lachs darauf anrichten",
+        "Mit Zitrone beträufeln"
+    ],
+    tags: ["Lachs", "Brokkoli", "Edel"],
+    prepTime: 20,
+    difficulty: "Mittel"
+},
+{
+    id: 90,
+    title: "Protein-Pancake-Turm",
+    protein: 44,
+    fat: 8,
+    calories: 500,
+    description: "Gestapelte Protein-Pancakes",
+    ingredients: [
+        "300g Magerquark",
+        "4 Eier",
+        "80g Haferflocken",
+        "30g Whey Protein",
+        "Beeren, Honig",
+        "1 TL Kokosöl"
+    ],
+    instructions: [
+        "Alle Zutaten zu einem Teig verrühren",
+        "15 Min quellen lassen",
+        "Kleine Pancakes in Kokosöl backen",
+        "Übereinander stapeln",
+        "Mit Beeren schichten",
+        "Mit Honig beträufeln",
+        "Sofort servieren"
+    ],
+    tags: ["Pancakes", "Süß", "Turm"],
+    prepTime: 25,
+    difficulty: "Einfach"
+},
+{
+    id: 91,
+    title: "Thunfisch-Bohnen-Salat",
+    protein: 46,
+    fat: 8,
+    calories: 480,
+    description: "Proteinreicher mediterraner Salat",
+    ingredients: [
+        "2 Dosen Thunfisch (280g)",
+        "400g weiße Bohnen",
+        "200g Kirschtomaten",
+        "Rote Zwiebel",
+        "1 TL Olivenöl",
+        "Basilikum, Zitrone"
+    ],
+    instructions: [
+        "Thunfisch abtropfen lassen",
+        "Bohnen abspülen",
+        "Tomaten halbieren",
+        "Zwiebel in Ringe schneiden",
+        "Alles mischen",
+        "Mit Olivenöl und Zitrone anmachen",
+        "Mit Basilikum garnieren"
+    ],
+    tags: ["Thunfisch", "Bohnen", "Mediterran"],
+    prepTime: 15,
+    difficulty: "Einfach"
+},
+{
+    id: 92,
+    title: "Hähnchen-Paprika-Spieße",
+    protein: 47,
+    fat: 7,
+    calories: 500,
+    description: "Bunte Grillspieße mit Hähnchen",
+    ingredients: [
+        "300g Hähnchenbrust",
+        "2 Paprika (rot, gelb)",
+        "200g Champignons",
+        "100g Bulgur",
+        "1 TL Olivenöl",
+        "Paprikapulver, Oregano"
+    ],
+    instructions: [
+        "Bulgur nach Anleitung zubereiten",
+        "Hähnchen in Würfel schneiden",
+        "Gemüse in gleich große Stücke schneiden",
+        "Abwechselnd aufspießen",
+        "Mit Gewürzen und Olivenöl marinieren",
+        "10-12 Min grillen",
+        "Mit Bulgur servieren"
+    ],
+    tags: ["Spieße", "Grillen", "Paprika"],
+    prepTime: 25,
+    difficulty: "Einfach"
+},
+{
+    id: 93,
+    title: "Seitan-Curry mit Kokosmilch",
+    protein: 45,
+    fat: 9,
+    calories: 520,
+    description: "Veganes Curry mit Weizeneiweiß",
+    ingredients: [
+        "300g Seitan",
+        "200ml Kokosmilch (light)",
+        "200g Süßkartoffel",
+        "100g Basmatireis",
+        "Spinat",
+        "Curry, Ingwer"
+    ],
+    instructions: [
+        "Reis kochen",
+        "Seitan würfeln",
+        "Süßkartoffel in Stücke schneiden",
+        "Curry und Ingwer anrösten",
+        "Kokosmilch angießen",
+        "Seitan und Süßkartoffel hinzufügen",
+        "15 Min köcheln, Spinat unterheben"
+    ],
+    tags: ["Vegan", "Seitan", "Curry"],
+    prepTime: 30,
+    difficulty: "Mittel"
+},
+{
+    id: 94,
+    title: "Protein-Marmorkuchen",
+    protein: 41,
+    fat: 9,
+    calories: 490,
+    description: "Fitness-Version des Klassikers",
+    ingredients: [
+        "400g Magerquark",
+        "4 Eier",
+        "40g Whey Protein (Vanille)",
+        "2 EL Kakaopulver",
+        "100g Haferflocken",
+        "Süßstoff, Backpulver"
+    ],
+    instructions: [
+        "Ofen auf 180°C vorheizen",
+        "Haferflocken mahlen",
+        "Quark, Eier und Proteinpulver mischen",
+        "Haferflocken und Backpulver unterrühren",
+        "Teig teilen, eine Hälfte mit Kakao mischen",
+        "Marmoriert in Form geben",
+        "45 Min backen"
+    ],
+    tags: ["Kuchen", "Marmor", "Fitness"],
+    prepTime: 55,
+    difficulty: "Mittel"
+},
+{
+    id: 95,
+    title: "Kabeljau mit Fenchel-Orangen-Salat",
+    protein: 45,
+    fat: 8,
+    calories: 480,
+    description: "Mediterraner Fisch mit frischem Salat",
+    ingredients: [
+        "300g Kabeljaufilet",
+        "2 Fenchelknollen",
+        "2 Orangen",
+        "100g Quinoa",
+        "1 TL Olivenöl",
+        "Fenchelsamen, Petersilie"
+    ],
+    instructions: [
+        "Quinoa kochen",
+        "Fenchel hobeln",
+        "Orangen filetieren",
+        "Kabeljau würzen und braten",
+        "Fenchel und Orangen mischen",
+        "Mit Olivenöl anmachen",
+        "Fisch auf Salat servieren"
+    ],
+    tags: ["Fisch", "Fenchel", "Frisch"],
+    prepTime: 25,
+    difficulty: "Mittel"
+},
+{
+    id: 96,
+    title: "Protein-Brotaufstrich",
+    protein: 42,
+    fat: 6,
+    calories: 450,
+    description: "Selbstgemachter eiweißreicher Aufstrich",
+    ingredients: [
+        "400g Hüttenkäse",
+        "100g Räuchertofu",
+        "Schnittlauch, Dill",
+        "Paprikapulver",
+        "Vollkornbrot",
+        "Radieschen"
+    ],
+    instructions: [
+        "Tofu fein zerbröseln",
+        "Mit Hüttenkäse mischen",
+        "Kräuter fein hacken",
+        "Alles vermischen und würzen",
+        "Brot toasten",
+        "Dick aufstreichen",
+        "Mit Radieschen garnieren"
+    ],
+    tags: ["Aufstrich", "Frühstück", "Vegetarisch"],
+    prepTime: 10,
+    difficulty: "Einfach"
+},
+{
+    id: 97,
+    title: "Hähnchen-Zitronenreis",
+    protein: 48,
+    fat: 8,
+    calories: 530,
+    description: "Aromatischer Reis mit Hähnchen",
+    ingredients: [
+        "300g Hähnchenbrust",
+        "150g Basmatireis",
+        "2 Zitronen",
+        "300ml Hühnerbrühe",
+        "100g Erbsen",
+        "1 TL Olivenöl"
+    ],
+    instructions: [
+        "Hähnchen würfeln und anbraten",
+        "Reis hinzufügen und kurz mitrösten",
+        "Mit Brühe aufgießen",
+        "Zitronensaft und -schale hinzufügen",
+        "15 Min köcheln lassen",
+        "Erbsen in letzten 5 Min zugeben",
+        "Mit Petersilie garnieren"
+    ],
+    tags: ["Hähnchen", "Reis", "Zitrone"],
+    prepTime: 30,
+    difficulty: "Einfach"
+},
+{
+    id: 98,
+    title: "Protein-Gazpacho mit Garnelen",
+    protein: 44,
+    fat: 7,
+    calories: 460,
+    description: "Kalte spanische Suppe mit Protein-Boost",
+    ingredients: [
+        "400g Garnelen",
+        "1kg reife Tomaten",
+        "1 Gurke",
+        "1 Paprika",
+        "100g Vollkornbrot",
+        "1 TL Olivenöl"
+    ],
+    instructions: [
+        "Tomaten, Gurke und Paprika würfeln",
+        "Brot einweichen",
+        "Alles pürieren und würzen",
+        "2 Stunden kühlen",
+        "Garnelen anbraten",
+        "Gazpacho in Schalen füllen",
+        "Mit Garnelen toppen"
+    ],
+    tags: ["Kalt", "Spanisch", "Garnelen"],
+    prepTime: 20,
+    difficulty: "Einfach"
+},
+{
+    id: 99,
+    title: "Putenhack-Zucchini-Boote",
+    protein: 46,
+    fat: 8,
+    calories: 500,
+    description: "Gefüllte Zucchini mit Putenhack",
+    ingredients: [
+        "4 große Zucchini",
+        "300g Putenhackfleisch",
+        "100g Feta (light)",
+        "Tomaten, Zwiebel",
+        "Basilikum, Oregano",
+        "1 TL Olivenöl"
+    ],
+    instructions: [
+        "Zucchini halbieren und aushöhlen",
+        "Putenhack mit Zwiebel anbraten",
+        "Zucchinfleisch und Tomaten hinzufügen",
+        "Mit Kräutern würzen",
+        "Zucchini füllen",
+        "Mit Feta bestreuen",
+        "25 Min bei 180°C backen"
+    ],
+    tags: ["Pute", "Zucchini", "Gefüllt"],
+    prepTime: 35,
+    difficulty: "Mittel"
+},
+{
+    id: 100,
+    title: "Protein-Tiramisu ohne Zucker",
+    protein: 43,
+    fat: 9,
+    calories: 480,
+    description: "Fitness-Version des italienischen Desserts",
+    ingredients: [
+        "400g Magerquark",
+        "200g Mascarpone (light)",
+        "30g Whey Protein (Vanille)",
+        "Löffelbiskuits (zuckerfrei)",
+        "Starker Kaffee",
+        "Kakaopulver"
+    ],
+    instructions: [
+        "Quark mit Mascarpone und Proteinpulver mischen",
+        "Biskuits in Kaffee tränken",
+        "Schichtweise in Gläser geben",
+        "Mit Creme abschließen",
+        "4 Stunden kühlen",
+        "Mit Kakao bestäuben",
+        "Kalt servieren"
+    ],
+    tags: ["Dessert", "Tiramisu", "Fitness"],
+    prepTime: 20,
+    difficulty: "Einfach"
+},
+{
+    id: 101,
+    title: "Hähnchen-Kokos-Suppe",
+    protein: 47,
+    fat: 9,
+    calories: 520,
+    description: "Asiatische Suppe mit Kokosmilch",
+    ingredients: [
+        "300g Hähnchenbrust",
+        "400ml Kokosmilch (light)",
+        "500ml Hühnerbrühe",
+        "Champignons, Paprika",
+        "Ingwer, Zitronengras",
+        "Koriander"
+    ],
+    instructions: [
+        "Hähnchen in Streifen schneiden",
+        "Ingwer und Zitronengras anbraten",
+        "Brühe angießen",
+        "Hähnchen hinzufügen",
+        "10 Min köcheln lassen",
+        "Kokosmilch und Gemüse zugeben",
+        "Mit Koriander garnieren"
+    ],
+    tags: ["Suppe", "Asiatisch", "Kokos"],
+    prepTime: 25,
+    difficulty: "Mittel"
+},
+{
+    id: 102,
+    title: "Protein-Wraps mit Thunfisch",
+    protein: 49,
+    fat: 8,
+    calories: 510,
+    description: "Schnelle Wraps für unterwegs",
+    ingredients: [
+        "3 Dosen Thunfisch (420g)",
+        "3 Vollkorn-Tortillas",
+        "200g griechischer Joghurt",
+        "Eisbergsalat",
+        "Gurke, Tomaten",
+        "Kapern"
+    ],
+    instructions: [
+        "Thunfisch abtropfen lassen",
+        "Mit Joghurt und Kapern mischen",
+        "Gemüse waschen und schneiden",
+        "Tortillas erwärmen",
+        "Mit Thunfischmischung bestreichen",
+        "Gemüse darauf verteilen",
+        "Fest einrollen und halbieren"
+    ],
+    tags: ["Wrap", "Thunfisch", "Schnell"],
+    prepTime: 15,
+    difficulty: "Einfach"
+},
+{
+    id: 103,
+    title: "Lachstatar mit Avocado",
+    protein: 45,
+    fat: 10,
+    calories: 520,
+    description: "Elegantes rohes Lachsgericht",
+    ingredients: [
+        "300g Lachs (Sushi-Qualität)",
+        "1 Avocado",
+        "Limette, Ingwer",
+        "Sojasauce",
+        "Sesam, Koriander",
+        "Vollkornbrot"
+    ],
+    instructions: [
+        "Lachs sehr fein würfeln",
+        "Avocado würfeln",
+        "Ingwer fein reiben",
+        "Mit Limettensaft und Sojasauce marinieren",
+        "30 Min kühlen",
+        "Mit Sesam bestreuen",
+        "Mit Brot servieren"
+    ],
+    tags: ["Lachs", "Roh", "Elegant"],
+    prepTime: 35,
+    difficulty: "Mittel"
+},
+{
+    id: 104,
+    title: "Protein-Bratling aus Linsen",
+    protein: 42,
+    fat: 8,
+    calories: 480,
+    description: "Vegane Buletten aus Linsen",
+    ingredients: [
+        "300g rote Linsen (gekocht)",
+        "100g Haferflocken",
+        "1 Ei-Ersatz",
+        "Zwiebel, Knoblauch",
+        "Petersilie, Kreuzkümmel",
+        "1 TL Rapsöl"
+    ],
+    instructions: [
+        "Linsen mit Haferflocken pürieren",
+        "Zwiebel fein würfeln",
+        "Alle Zutaten mischen",
+        "30 Min quellen lassen",
+        "Bratlinge formen",
+        "In Rapsöl von beiden Seiten braten",
+        "Mit Salat servieren"
+    ],
+    tags: ["Vegan", "Linsen", "Bratling"],
+    prepTime: 40,
+    difficulty: "Mittel"
+},
+{
+    id: 105,
+    title: "Hähnchen-Mango-Salat",
+    protein: 46,
+    fat: 9,
+    calories: 510,
+    description: "Exotischer Salat mit gegrilltem Hähnchen",
+    ingredients: [
+        "300g Hähnchenbrust",
+        "1 reife Mango",
+        "Gemischter Salat",
+        "100g Hüttenkäse",
+        "Limette, Chili",
+        "Minze, Koriander"
+    ],
+    instructions: [
+        "Hähnchen grillen und in Streifen schneiden",
+        "Mango würfeln",
+        "Salat waschen",
+        "Hüttenkäse mit Limette und Chili mischen",
+        "Alles auf Tellern anrichten",
+        "Mit Kräutern garnieren",
+        "Sofort servieren"
+    ],
+    tags: ["Salat", "Mango", "Exotisch"],
+    prepTime: 20,
+    difficulty: "Einfach"
 }
         ];
 
@@ -2927,8 +3698,11 @@
         const useLocalStorage = (key, initialValue) => {
             const [storedValue, setStoredValue] = useState(() => {
                 try {
-                    const item = window.localStorage.getItem(key);
-                    return item ? JSON.parse(item) : initialValue;
+                    if (typeof window !== 'undefined') {
+                        const item = window.localStorage.getItem(key);
+                        return item ? JSON.parse(item) : initialValue;
+                    }
+                    return initialValue;
                 } catch (error) {
                     console.log(error);
                     return initialValue;
@@ -2938,7 +3712,9 @@
             const setValue = (value) => {
                 try {
                     setStoredValue(value);
-                    window.localStorage.setItem(key, JSON.stringify(value));
+                    if (typeof window !== 'undefined') {
+                        window.localStorage.setItem(key, JSON.stringify(value));
+                    }
                 } catch (error) {
                     console.log(error);
                 }
@@ -3047,7 +3823,7 @@
                                         value={recipeData.protein}
                                         onChange={(e) => handleInputChange('protein', e.target.value)}
                                         required
-                                        min="120"
+                                        min="40"
                                     />
                                 </div>
                                 <div className="form-group">
@@ -3156,97 +3932,75 @@
         };
 
         // Filter-Komponente erweitert
-// Filter-Komponente erweitert
-// Filter-Komponente erweitert
-const FilterBar = ({ 
-    filters, 
-    activeFilters, 
-    excludedIngredients,
-    onFilterChange, 
-    onExcludeIngredient,
-    searchTerm, 
-    onSearchChange 
-}) => {
-    const [ingredientInput, setIngredientInput] = useState('');
-    const [isExpanded, setIsExpanded] = useState(false);
+        const FilterBar = ({ 
+            filters, 
+            activeFilters, 
+            excludedIngredients,
+            onFilterChange, 
+            onExcludeIngredient,
+            searchTerm, 
+            onSearchChange 
+        }) => {
+            const [ingredientInput, setIngredientInput] = useState('');
 
-    const handleAddExclusion = (e) => {
-        if (e.key === 'Enter' && ingredientInput.trim()) {
-            onExcludeIngredient(ingredientInput.trim());
-            setIngredientInput('');
-        }
-    };
+            const handleAddExclusion = (e) => {
+                if (e.key === 'Enter' && ingredientInput.trim()) {
+                    onExcludeIngredient(ingredientInput.trim());
+                    setIngredientInput('');
+                }
+            };
 
-    return (
-        <div className="filter-bar">
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <h3>Rezepte filtern</h3>
-                <button 
-                    className="control-btn secondary filter-toggle-btn"
-                    onClick={() => setIsExpanded(!isExpanded)}
-                >
-                    <i className={`fas fa-chevron-${isExpanded ? 'up' : 'down'}`}></i>
-                </button>
-            </div>
-            
-            <input
-                type="text"
-                className="search-bar"
-                placeholder="Rezept suchen..."
-                value={searchTerm}
-                onChange={(e) => onSearchChange(e.target.value)}
-            />
-            
-            <div 
-                className="filter-content"
-                style={{
-                    maxHeight: isExpanded ? '1000px' : '0',
-                    overflow: 'hidden',
-                    transition: 'max-height 0.3s ease',
-                    opacity: isExpanded ? 1 : 0
-                }}
-            >
-                <div className="filter-section">
-                    <h4>Kategorien</h4>
-                    <div className="filter-options">
-                        {filters.map(filter => (
-                            <div
-                                key={filter}
-                                className={`filter-chip ${activeFilters.includes(filter) ? 'active' : ''}`}
-                                onClick={() => onFilterChange(filter)}
-                            >
-                                {filter}
-                            </div>
-                        ))}
-                    </div>
-                </div>
-
-                <div className="filter-section">
-                    <h4>Zutaten ausschließen</h4>
+            return (
+                <div className="filter-bar">
+                    <h3>Rezepte filtern</h3>
                     <input
                         type="text"
                         className="search-bar"
-                        placeholder="Zutat eingeben und Enter drücken..."
-                        value={ingredientInput}
-                        onChange={(e) => setIngredientInput(e.target.value)}
-                        onKeyPress={handleAddExclusion}
+                        placeholder="Rezept suchen..."
+                        value={searchTerm}
+                        onChange={(e) => onSearchChange(e.target.value)}
                     />
-                    <div className="filter-options">
-                        {excludedIngredients.map(ingredient => (
-                            <div
-                                key={ingredient}
-                                className="filter-chip excluded"
-                                onClick={() => onExcludeIngredient(ingredient)}
-                            >
-                                {ingredient} <i className="fas fa-times"></i>
-                            </div>
-                        ))}
+                    
+                    <div className="filter-section">
+                        <h4>Kategorien</h4>
+                        <div className="filter-options">
+                            {filters.map(filter => (
+                                <div
+                                    key={filter}
+                                    className={`filter-chip ${activeFilters.includes(filter) ? 'active' : ''}`}
+                                    onClick={() => onFilterChange(filter)}
+                                >
+                                    {filter}
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
+                    <div className="filter-section">
+                        <h4>Zutaten ausschließen</h4>
+                        <input
+                            type="text"
+                            className="search-bar"
+                            placeholder="Zutat eingeben und Enter drücken..."
+                            value={ingredientInput}
+                            onChange={(e) => setIngredientInput(e.target.value)}
+                            onKeyPress={handleAddExclusion}
+                        />
+                        <div className="filter-options">
+                            {excludedIngredients.map(ingredient => (
+                                <div
+                                    key={ingredient}
+                                    className="filter-chip excluded"
+                                    onClick={() => onExcludeIngredient(ingredient)}
+                                >
+                                    {ingredient} <i className="fas fa-times"></i>
+                                </div>
+                            ))}
+                        </div>
                     </div>
                 </div>
-            </div>
-        </div>
-    );
-};
+            );
+        };
 
         // Rezeptkarten-Komponente erweitert
         const RecipeCard = ({ recipe, isFavorite, onToggleFavorite, onAddToMealPlan, onPrint, portions = 1 }) => {
@@ -3263,152 +4017,53 @@ const FilterBar = ({
                 return quantity;
             };
 
-           const handlePrint = (e) => {
-    e.stopPropagation();
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF();
-    
-    // Farben definieren
-    const primaryColor = [46, 204, 113]; // Grün
-    const textColor = [44, 62, 80]; // Dunkelgrau
-    const lightGray = [236, 240, 241];
-    
-    // Header mit Hintergrundfarbe
-    doc.setFillColor(...primaryColor);
-    doc.rect(0, 0, 210, 40, 'F');
-    
-    // Titel
-    doc.setTextColor(255, 255, 255);
-    doc.setFontSize(24);
-    doc.setFont(undefined, 'bold');
-    doc.text(recipe.title, 15, 25);
-    
-    // Nährwerte Box
-    doc.setFillColor(...lightGray);
-    doc.rect(15, 45, 180, 20, 'F');
-    doc.setTextColor(...textColor);
-    doc.setFontSize(11);
-    doc.setFont(undefined, 'normal');
-    doc.text(`Protein: ${recipe.protein * customPortions}g`, 20, 55);
-    doc.text(`Fett: ${recipe.fat * customPortions}g`, 70, 55);
-    doc.text(`Kalorien: ${recipe.calories * customPortions} kcal`, 110, 55);
-    doc.text(`Portionen: ${customPortions}`, 165, 55);
-    
-    // Beschreibung
-    let descLines = [];
-    let yPos = 75;
-    
-    if (recipe.description) {
-        doc.setFontSize(10);
-        doc.setTextColor(100, 100, 100);
-        descLines = doc.splitTextToSize(recipe.description, 180);
-        doc.text(descLines, 15, yPos);
-        yPos = 85 + (descLines.length * 4);
-    }
-    
-    // Zubereitungsinfo
-    doc.setFillColor(...primaryColor);
-    doc.setTextColor(255, 255, 255);
-    doc.roundedRect(15, yPos, 50, 8, 2, 2, 'F');
-    doc.setFontSize(10);
-    doc.text(`Zeit: ${recipe.prepTime} Min.`, 17, yPos + 5.5);
-    
-    if (recipe.difficulty) {
-        doc.roundedRect(70, yPos, 50, 8, 2, 2, 'F');
-        doc.text(`Level: ${recipe.difficulty}`, 72, yPos + 5.5);
-    }
-    
-    // Zutaten
-    yPos += 18;
-    doc.setTextColor(...primaryColor);
-    doc.setFontSize(16);
-    doc.setFont(undefined, 'bold');
-    doc.text('Zutaten', 15, yPos);
-    
-    // Zutatenliste mit Bullets
-    yPos += 8;
-    doc.setTextColor(...textColor);
-    doc.setFontSize(11);
-    doc.setFont(undefined, 'normal');
-    
-    recipe.ingredients.forEach(ingredient => {
-        if (yPos > 270) {
-            doc.addPage();
-            yPos = 20;
-        }
-        // Bullet Point
-        doc.setFillColor(...primaryColor);
-        doc.circle(18, yPos - 2, 1.5, 'F');
-        // Zutat
-        doc.text(adjustQuantity(ingredient), 25, yPos);
-        yPos += 7;
-    });
-    
-    // Zubereitung
-    yPos += 10;
-    if (yPos > 240) {
-        doc.addPage();
-        yPos = 20;
-    }
-    
-    doc.setTextColor(...primaryColor);
-    doc.setFontSize(16);
-    doc.setFont(undefined, 'bold');
-    doc.text('Zubereitung', 15, yPos);
-    
-    yPos += 8;
-    doc.setTextColor(...textColor);
-    doc.setFontSize(11);
-    doc.setFont(undefined, 'normal');
-    
-    recipe.instructions.forEach((instruction, index) => {
-        if (yPos > 250) {
-            doc.addPage();
-            yPos = 20;
-        }
-        
-        // Schrittnummer in Kreis
-        doc.setFillColor(...primaryColor);
-        doc.circle(20, yPos - 2, 4, 'F');
-        doc.setTextColor(255, 255, 255);
-        doc.setFontSize(10);
-        doc.text(String(index + 1), index < 9 ? 18.5 : 17.5, yPos);
-        
-        // Anweisung
-        doc.setTextColor(...textColor);
-        doc.setFontSize(11);
-        const lines = doc.splitTextToSize(instruction, 160);
-        lines.forEach((line, lineIndex) => {
-            if (yPos > 270) {
-                doc.addPage();
-                yPos = 20;
-            }
-            doc.text(line, 30, yPos);
-            yPos += 6;
-        });
-        yPos += 4;
-    });
-    
-    // Tags am Ende
-    if (recipe.tags && recipe.tags.length > 0 && yPos < 260) {
-        yPos += 10;
-        doc.setFontSize(9);
-        doc.setTextColor(150, 150, 150);
-        doc.text('Tags: ' + recipe.tags.join(' • '), 15, yPos);
-    }
-    
-    // Footer
-    doc.setFontSize(8);
-    doc.setTextColor(180, 180, 180);
-    doc.text(`Erstellt am ${new Date().toLocaleDateString('de-DE')}`, 15, 285);
-    doc.text('Proteinreiche Rezepte', 195, 285, { align: 'right' });
-    
-    // PDF speichern
-    doc.save(`${recipe.title.replace(/[^a-z0-9äöüß ]/gi, '')}.pdf`);
-};
+            const handlePrint = (e) => {
+                e.stopPropagation();
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+                
+                doc.setFontSize(20);
+                doc.text(recipe.title, 20, 20);
+                
+                doc.setFontSize(12);
+                doc.text(`Protein: ${recipe.protein * customPortions}g | Fett: ${recipe.fat * customPortions}g | Kalorien: ${recipe.calories * customPortions} | Portionen: ${customPortions}`, 20, 30);
+                
+                doc.setFontSize(14);
+                doc.text('Zutaten:', 20, 45);
+                
+                doc.setFontSize(11);
+                let yPos = 55;
+                recipe.ingredients.forEach(ingredient => {
+                    doc.text(`• ${adjustQuantity(ingredient)}`, 25, yPos);
+                    yPos += 7;
+                });
+                
+                doc.setFontSize(14);
+                doc.text('Zubereitung:', 20, yPos + 10);
+                
+                doc.setFontSize(11);
+                yPos += 20;
+                recipe.instructions.forEach((instruction, index) => {
+                    const lines = doc.splitTextToSize(`${index + 1}. ${instruction}`, 165);
+                    lines.forEach(line => {
+                        if (yPos > 270) {
+                            doc.addPage();
+                            yPos = 20;
+                        }
+                        doc.text(line, 25, yPos);
+                        yPos += 7;
+                    });
+                    yPos += 3;
+                });
+                
+                doc.save(`${recipe.title}.pdf`);
+            };
 
             return (
                 <div className="recipe-card">
+                    <div className="recipe-image">
+                        <i className="fas fa-utensils"></i>
+                    </div>
                     <div className="recipe-actions">
                         <button 
                             className={`action-btn favorite ${isFavorite ? 'active' : ''}`}
@@ -3435,11 +4090,12 @@ const FilterBar = ({
                             <i className="fas fa-print"></i>
                         </button>
                     </div>
-                    <div className="recipe-header" onClick={() => setExpanded(!expanded)}>
+                    <div className="recipe-header">
                         <h3>{recipe.title}</h3>
                         <div className="recipe-stats">
                             <span><i className="fas fa-dumbbell"></i> {Math.round(recipe.protein * customPortions)}g Protein</span>
                             <span><i className="fas fa-fire"></i> {Math.round(recipe.fat * customPortions)}g Fett</span>
+                            <span><i className="fas fa-bolt"></i> {Math.round(recipe.calories * customPortions)} kcal</span>
                             <span><i className="fas fa-clock"></i> {recipe.prepTime} Min</span>
                         </div>
                     </div>
@@ -3477,17 +4133,24 @@ const FilterBar = ({
                                 <li key={index}>{adjustQuantity(ingredient)}</li>
                             ))}
                         </ul>
+
+                        <div 
+                            className={`preparation-bar ${expanded ? 'expanded' : ''}`}
+                            onClick={() => setExpanded(!expanded)}
+                        >
+                            <span><i className="fas fa-list-ol"></i> Zubereitung anzeigen</span>
+                            <i className="fas fa-chevron-down"></i>
+                        </div>
                         
-                        {expanded && (
-                            <div className="recipe-instructions">
-                                <h4>Zubereitung:</h4>
-                                <ol>
-                                    {recipe.instructions.map((step, index) => (
-                                        <li key={index}>{step}</li>
-                                    ))}
-                                </ol>
-                            </div>
-                        )}
+                        <div className={`recipe-instructions ${expanded ? 'expanded' : ''}`}>
+                            <h4>Zubereitung:</h4>
+                            <ol>
+                                {recipe.instructions.map((step, index) => (
+                                    <li key={index}>{step}</li>
+                                ))}
+                            </ol>
+                        </div>
+
                         <div className="recipe-tags">
                             {recipe.tags.map((tag, index) => (
                                 <span key={index} className="recipe-tag">{tag}</span>
@@ -3748,7 +4411,6 @@ const FilterBar = ({
 
             const handleAddToMealPlan = (recipe) => {
                 setNotification(`${recipe.title} zum Wochenplaner hinzugefügt!`);
-                // Hier könnte man ein Modal öffnen zur Auswahl von Tag und Mahlzeit
             };
 
             const exportAllRecipes = () => {
@@ -3798,7 +4460,7 @@ const FilterBar = ({
                             </button>
                         </div>
                         <h1>Proteinreiche, fettarme Rezepte</h1>
-                        <p>Über 120g Protein & unter 10% Fettanteil pro Portion</p>
+                        <p>40g+ Protein & unter 10g Fett pro Portion</p>
                     </header>
 
                     <div className="container">
@@ -3818,7 +4480,7 @@ const FilterBar = ({
                                     <div className="stat-label">Eigene Rezepte</div>
                                 </div>
                                 <div className="stat-item">
-                                    <div className="stat-value">120g+</div>
+                                    <div className="stat-value">40g+</div>
                                     <div className="stat-label">Protein/Portion</div>
                                 </div>
                             </div>
