@@ -5288,7 +5288,7 @@ const handlePrint = (e) => {
             document.body.innerHTML = originalContent;
             document.head.removeChild(tempStyle);
             
-            const root = ReactDOM.createRoot(document.getElementById('root'));
+            ReactDOM.render(<App />, document.getElementById('root'));
             root.render(<App />);
         }, 100);
     }
@@ -5630,7 +5630,7 @@ const ShoppingList = ({ recipes, mealPlan, manualItems, onUpdateManualItems, onR
         document.head.removeChild(tempStyle);
         
         // React neu initialisieren
-        const root = ReactDOM.createRoot(document.getElementById('root'));
+        ReactDOM.render(<App />, document.getElementById('root'));
         root.render(<App />);
     }
 };
@@ -6004,7 +6004,7 @@ const RecipeList = ({ recipes, favorites, onToggleFavorite, onAddToMealPlan, onA
         };
 
         // App rendern
-        const root = ReactDOM.createRoot(document.getElementById('root'));
+        ReactDOM.render(<App />, document.getElementById('root'));
         root.render(<App />);
     </script>
 </body>
